@@ -26,8 +26,7 @@ func parseOutput(data string) (HandBrakeMeta) {
 		action newline { line +=1; fmt.Printf("\n%02d: ", line) }
 		newline = any* '\n' @ newline;
 		title := |*
-			space*;
-			alnum+ space* alnum+[.]"mkv" => { fmt.Printf("%s", data[ts:te]); fret;};
+			(alnum|space)+[.]*alnum* => { fmt.Printf("%s", data[ts:te]); fret;};
 			"\n" => { fret; };
 		*|;
 		duration := |*
@@ -35,10 +34,15 @@ func parseOutput(data string) (HandBrakeMeta) {
 			digit{2}[:]digit{2}[:]digit{2} => { fmt.Printf("%s", data[ts:te]); fret;};
 			"\n" => { fret; };
 		*|;
+		picture := |*
+			space*;
+			digit{3,4} "x" digit{3,4} => { fmt.Printf("%s", data[ts:te]); fret;};
+		*|;
 		main := ( 
 			newline |
-			space+ "+" space+ . "stream:" @{ fcall title; } |
-			space+ "+" space+ . "duration:" @{ fcall duration; }
+			space+ "+" space+ "stream:" space* @{ fcall title; } |
+			space+ "+" space+ "duration:" @{ fcall duration; } |
+			space+ "+" space+ "size:" @{ fcall picture; }
 		)*;
 		write init;
 		write exec;
