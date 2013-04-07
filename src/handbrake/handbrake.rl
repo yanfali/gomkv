@@ -38,11 +38,30 @@ func parseOutput(data string) (HandBrakeMeta) {
 			space*;
 			digit{3,4} "x" digit{3,4} => { fmt.Printf("%s", data[ts:te]); fret;};
 		*|;
+		paspect := |*
+			space*;
+			digit{1,4} "/" digit{1,4} => { fmt.Printf("%s", data[ts:te]); fret; };
+		*|;
+		daspect := |*
+			space*;
+			digit{1} . "." . digit{1,3} => { fmt.Printf("%s", data[ts:te]); fret; };
+		*|;
+		fps := |*
+			"\n" => { ts=ts-12; fmt.Printf("%s\n", data[ts:te-4]); fret; };
+		*|;
+		crop := |*
+			space*;
+			digit{1,3} "/" digit{1,3} "/" digit{1,3} "/" digit{1,3} => { fmt.Printf("%s", data[ts:te]); fret; };
+		*|;
 		main := ( 
 			newline |
 			space+ "+" space+ "stream:" space* @{ fcall title; } |
 			space+ "+" space+ "duration:" @{ fcall duration; } |
-			space+ "+" space+ "size:" @{ fcall picture; }
+			space+ "+" space+ "size:" @{ fcall picture; } |
+			space+ "+" any+ "pixel" space+ "aspect:" @{ fcall paspect; } |
+			space+ "+" any+ "display" space+ "aspect:" @{ fcall daspect; } |
+			space+ "+" any+ "fps" @{ fcall fps; } |
+			space+ "+" space+ "autocrop:" @{ fcall crop; }
 		)*;
 		write init;
 		write exec;
