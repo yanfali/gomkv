@@ -87,6 +87,16 @@ func parseOutput(data string) (HandBrakeMeta) {
 # Bps
 			digit+ "bps" => { fmt.Printf("e-%s", data[ts:te-3]); fret; };
 			*|;
+		subtype = "Bitmap" | "Text";
+		format = "VOBSUB" | "UTF-8";
+		subtitle := |*
+			[A-Z] alpha+ - subtype - format => { fmt.Printf("a-%s:", data[ts:te]); };
+			space;
+			"(iso" digit{3} "-" digit ":" space lower{3} ")";
+			space;
+			"(" subtype ")" => { fmt.Printf("b-%s:", data[ts+1:te-1]); };
+			"(" format ")" => { fmt.Printf("c-%s", data[ts+1:te-1]); fret; };
+		*|;
 		word = [a-z]+;
 		prefix = space+ "+";
 		prefixsp = prefix space;
@@ -97,7 +107,7 @@ func parseOutput(data string) (HandBrakeMeta) {
 		displayaspect = prefix any+ "display" space+ "aspect:";
 		fps = prefix any+ "fps";
 		autocrop = prefixsp "autocrop:";
-		audiotrack = prefixsp digit "," space;
+		track = prefixsp digit "," space;
 		main := ( 
 			newline |
 			stream @{ fcall stitle; } |
@@ -110,7 +120,14 @@ func parseOutput(data string) (HandBrakeMeta) {
 			prefixsp "chapters:" @{ section = CHAPTER; fmt.Printf("chapter"); } |
 			prefixsp "audio tracks:" @{ section = AUDIO; fmt.Printf("audio"); } |
 			prefixsp "subtitle tracks:" @{ section = SUBTITLE; fmt.Printf("subtitle"); } |
-			audiotrack @{ if section == AUDIO { fcall atrack; } }
+			track @{
+				switch section {
+				case AUDIO:
+					fcall atrack;
+				case SUBTITLE:
+					fcall subtitle;
+				}
+			}
 		)*;
 		write init;
 		write exec;
