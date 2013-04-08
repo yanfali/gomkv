@@ -38,15 +38,11 @@ func parseTime(timestring string) float64 {
 func parseOutput(data string) HandBrakeMeta {
 	cs, p, pe, eof := 0, 0, len(data), 0
 	top, ts, te, act := 0,0,0,0
-	_,_,_,_ = top, ts, te, act
 	var stack = []int{0}
 	var section = NONE
 	var meta = HandBrakeMeta{}
-	_ = eof
 	line := 1
-	csp := 0
 	fmt.Printf("%02d: ", line)
-	_ = csp
 	%%{
 		action newline { line +=1; fmt.Printf("\n%02d: ", line) }
 		newline = any* '\n' @ newline;
@@ -85,10 +81,6 @@ func parseOutput(data string) HandBrakeMeta {
 			digit{1,3} "/" digit{1,3} "/" digit{1,3} "/" digit{1,3} => { fmt.Printf("%s", data[ts:te]); fret; };
 		*|;
 		atrack := |*
-#			space+ "+" space+;
-# track
-#			digit => { fmt.Printf("%s,", data[ts:te]); };
-#			"," space+;
 # Language
 			[A-Z] alpha+ => { fmt.Printf("a-%s:", data[ts:te]); };
 			space;
