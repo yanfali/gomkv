@@ -4,8 +4,7 @@ import (
 	"testing"
 )
 
-var data string = `
-+ title 1:
+var data string = `+ title 1:
   + stream: source code.mkv
   + duration: 01:33:09
   + size: 720x480, pixel aspect: 2560/2151, display aspect: 1.79, 29.970 fps
@@ -37,11 +36,20 @@ var data string = `
     + 3, English (iso639-2: eng) (Bitmap)(VOBSUB)
 `
 
+var meta = parseOutput(data)
 func Test_parseTitle(t *testing.T) {
-	meta := parseOutput(data)
-	if meta.Title == "source code.mkv" {
+	exp := "source code.mkv"
+	if meta.Title == exp {
 		t.Log("ok")
 	} else {
-		t.Error("expected something else")
+		t.Errorf("expected '%s' - got '%s'", exp, meta.Title)
+	}
+}
+
+func Test_parseTime(t *testing.T) {
+	if meta.Duration == 5589.0 {
+		t.Log("ok")
+	} else {
+		t.Errorf("expected 5589, got %f", meta.Duration)
 	}
 }

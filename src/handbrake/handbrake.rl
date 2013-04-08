@@ -2,6 +2,8 @@ package handbrake
 
 import (
 	"fmt"
+	"strings"
+	"strconv"
 )
 
 %%{
@@ -17,29 +19,51 @@ const (
 	SUBTITLE
 )
 
-var section Section = NONE
-func parseOutput(data string) (HandBrakeMeta) {
+func parseTime(timestring string) float64 {
+	rawTime := strings.Trim(timestring, " \n");
+	splitTime := strings.Split(rawTime, ":")
+	var length float64
+	hours, err := strconv.ParseInt(splitTime[0], 10, 8)
+	if err != nil {
+		panic(err)
+	}
+	length += float64(hours * 60 * 60)
+	minutes, err := strconv.ParseInt(splitTime[1], 10, 8)
+	length += float64(minutes * 60)
+	seconds, err := strconv.ParseInt(splitTime[2], 10, 8)
+	length += float64(seconds)
+	return length
+}
+
+func parseOutput(data string) HandBrakeMeta {
 	cs, p, pe, eof := 0, 0, len(data), 0
 	top, ts, te, act := 0,0,0,0
 	_,_,_,_ = top, ts, te, act
 	var stack = []int{0}
+	var section = NONE
+	var meta = HandBrakeMeta{}
 	_ = eof
 	line := 1
 	csp := 0
-	meta := HandBrakeMeta{}
 	fmt.Printf("%02d: ", line)
 	_ = csp
 	%%{
 		action newline { line +=1; fmt.Printf("\n%02d: ", line) }
 		newline = any* '\n' @ newline;
 		stitle := |*
-			(alnum|space)+[.]*alnum* => { fmt.Printf("%s", data[ts:te]); fret;};
-			"\n" => { fret; };
+			([^.])+[.]alnum+ => {
+				meta.Title = strings.Trim(data[ts:te], " \n");
+				fmt.Printf("%s", meta.Title);
+				fret;
+			};
 		*|;
 		sduration := |*
-			space*;
-			digit{2}[:]digit{2}[:]digit{2} => { fmt.Printf("%s:", data[ts:te]); fret;};
-			"\n" => { fret; };
+			space+;
+			digit{2}[:]digit{2}[:]digit{2} => {
+				meta.Duration = parseTime(data[ts:te])
+				fmt.Printf("%f", meta.Duration);
+				fret;
+			};
 		*|;
 		picture := |*
 			space*;
@@ -100,7 +124,7 @@ func parseOutput(data string) (HandBrakeMeta) {
 		word = [a-z]+;
 		prefix = space+ "+";
 		prefixsp = prefix space;
-		stream = prefixsp "stream:" space*;
+		stream = prefixsp "stream:";
 		duration = prefixsp "duration:";
 		size = prefixsp "size:";
 		pixelaspect = prefix any+ "pixel" space+ "aspect:";
