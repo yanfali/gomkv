@@ -9,59 +9,108 @@ import (
 	write data;
 }%%
 
+type Section int
+const (
+	NONE Section = iota
+	CHAPTER
+	AUDIO
+	SUBTITLE
+)
+
+var section Section = NONE
 func parseOutput(data string) (HandBrakeMeta) {
 	cs, p, pe, eof := 0, 0, len(data), 0
 	top, ts, te, act := 0,0,0,0
 	_,_,_,_ = top, ts, te, act
-	stack := []int{0}
+	var stack = []int{0}
 	_ = eof
 	line := 1
-	capture := false
 	csp := 0
 	meta := HandBrakeMeta{}
 	fmt.Printf("%02d: ", line)
-	_ = capture
 	_ = csp
 	%%{
 		action newline { line +=1; fmt.Printf("\n%02d: ", line) }
 		newline = any* '\n' @ newline;
-		title := |*
+		stitle := |*
 			(alnum|space)+[.]*alnum* => { fmt.Printf("%s", data[ts:te]); fret;};
 			"\n" => { fret; };
 		*|;
-		duration := |*
+		sduration := |*
 			space*;
-			digit{2}[:]digit{2}[:]digit{2} => { fmt.Printf("%s", data[ts:te]); fret;};
+			digit{2}[:]digit{2}[:]digit{2} => { fmt.Printf("%s:", data[ts:te]); fret;};
 			"\n" => { fret; };
 		*|;
 		picture := |*
 			space*;
-			digit{3,4} "x" digit{3,4} => { fmt.Printf("%s", data[ts:te]); fret;};
+			digit{3,4} "x" digit{3,4} => { fmt.Printf("%s:", data[ts:te]); fret;};
 		*|;
 		paspect := |*
 			space*;
-			digit{1,4} "/" digit{1,4} => { fmt.Printf("%s", data[ts:te]); fret; };
+			digit{1,4} "/" digit{1,4} => { fmt.Printf("%s:", data[ts:te]); fret; };
 		*|;
 		daspect := |*
 			space*;
-			digit{1} . "." . digit{1,3} => { fmt.Printf("%s", data[ts:te]); fret; };
+			digit . "." . digit{1,3} => { fmt.Printf("%s:", data[ts:te]); fret; };
 		*|;
-		fps := |*
+		sfps := |*
 			"\n" => { ts -= 10; fmt.Printf("%s", data[ts:te-5]); p -= 1; fret; };
 		*|;
 		crop := |*
 			space*;
 			digit{1,3} "/" digit{1,3} "/" digit{1,3} "/" digit{1,3} => { fmt.Printf("%s", data[ts:te]); fret; };
 		*|;
+		atrack := |*
+#			space+ "+" space+;
+# track
+#			digit => { fmt.Printf("%s,", data[ts:te]); };
+#			"," space+;
+# Language
+			[A-Z] alpha+ => { fmt.Printf("a-%s:", data[ts:te]); };
+			space;
+			"(";
+# Codec
+			"AC3" | "DTS" | "aac" => { fmt.Printf("b-%s:", data[ts:te]); };
+			")";
+			space;
+			"(";
+# Channels
+			digit . "." . digit => { fmt.Printf("c-%s:", data[ts:te]) };
+			space;
+			"ch) ";
+# Ignore this bit
+			"(iso" digit{3} "-" digit ":" space lower{3} "),";
+# Hertz
+			space;
+			digit+ "Hz," => { fmt.Printf("d-%s:", data[ts:te-3]) };
+			space;
+# Bps
+			digit+ "bps" => { fmt.Printf("e-%s", data[ts:te-3]); fret; };
+			*|;
+		word = [a-z]+;
+		prefix = space+ "+";
+		prefixsp = prefix space;
+		stream = prefixsp "stream:" space*;
+		duration = prefixsp "duration:";
+		size = prefixsp "size:";
+		pixelaspect = prefix any+ "pixel" space+ "aspect:";
+		displayaspect = prefix any+ "display" space+ "aspect:";
+		fps = prefix any+ "fps";
+		autocrop = prefixsp "autocrop:";
+		audiotrack = prefixsp digit "," space;
 		main := ( 
 			newline |
-			space+ "+" space+ "stream:" space* @{ fcall title; } |
-			space+ "+" space+ "duration:" @{ fcall duration; } |
-			space+ "+" space+ "size:" @{ fcall picture; } |
-			space+ "+" any+ "pixel" space+ "aspect:" @{ fcall paspect; } |
-			space+ "+" any+ "display" space+ "aspect:" @{ fcall daspect; } |
-			space+ "+" any+ "fps" @{ fcall fps; } |
-			space+ "+" space+ "autocrop:" @{ fcall crop; }
+			stream @{ fcall stitle; } |
+			duration @{ fcall sduration; } |
+			size @{ fcall picture; } |
+			pixelaspect @{ fcall paspect; } |
+			displayaspect @{ fcall daspect; } |
+			fps @{ fcall sfps; } |
+			autocrop @{ fcall crop; } |
+			prefixsp "chapters:" @{ section = CHAPTER; fmt.Printf("chapter"); } |
+			prefixsp "audio tracks:" @{ section = AUDIO; fmt.Printf("audio"); } |
+			prefixsp "subtitle tracks:" @{ section = SUBTITLE; fmt.Printf("subtitle"); } |
+			audiotrack @{ if section == AUDIO { fcall atrack; } }
 		)*;
 		write init;
 		write exec;
