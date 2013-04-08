@@ -47,7 +47,7 @@ func parseOutput(data string) (HandBrakeMeta) {
 			digit{1} . "." . digit{1,3} => { fmt.Printf("%s", data[ts:te]); fret; };
 		*|;
 		fps := |*
-			"\n" => { ts=ts-12; fmt.Printf("%s\n", data[ts:te-4]); fret; };
+			"\n" => { ts -= 10; fmt.Printf("%s", data[ts:te-5]); p -= 1; fret; };
 		*|;
 		crop := |*
 			space*;
