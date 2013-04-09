@@ -53,7 +53,7 @@ func getLastAudioMeta(meta HandBrakeMeta) *AudioMeta {
 
 func getLastSubtitleMeta(meta HandBrakeMeta) *SubtitleMeta {
 	if len(meta.Subtitle) == 0 {
-		panic("No audio available!")
+		panic("No subtitle available!")
 	}
 	return &meta.Subtitle[len(meta.Subtitle)-1]
 }
