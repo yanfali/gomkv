@@ -44,6 +44,20 @@ func parseInt(value string) int {
 	return 0
 }
 
+func getLastAudioMeta(meta HandBrakeMeta) *AudioMeta {
+	if len(meta.Audio) == 0 {
+		panic("No audio available!")
+	}
+	return &meta.Audio[len(meta.Audio)-1]
+}
+
+func getLastSubtitleMeta(meta HandBrakeMeta) *SubtitleMeta {
+	if len(meta.Subtitle) == 0 {
+		panic("No audio available!")
+	}
+	return &meta.Subtitle[len(meta.Subtitle)-1]
+}
+
 func parseOutput(data string) HandBrakeMeta {
 	cs, p, pe, eof := 0, 0, len(data), 0
 	top, ts, te, act := 0,0,0,0
@@ -105,36 +119,66 @@ func parseOutput(data string) HandBrakeMeta {
 		*|;
 		atrack := |*
 # Language
-			[A-Z] alpha+ => { fmt.Printf("a-%s:", data[ts:te]); };
+			[A-Z] alpha+ => {
+				audio := getLastAudioMeta(meta)
+				audio.Language = data[ts:te]
+				fmt.Printf("a-%s:", audio.Language)
+			};
 			space;
-			"(";
 # Codec
-			"AC3" | "DTS" | "aac" => { fmt.Printf("b-%s:", data[ts:te]); };
-			")";
+			"(" ("AC3" | "DTS" | "aac") ")" => {
+				audio := getLastAudioMeta(meta)
+				audio.Codec = data[ts+1:te-1]
+				fmt.Printf("b-%s:", audio.Codec);
+			};
+
 			space;
-			"(";
 # Channels
-			digit . "." . digit => { fmt.Printf("c-%s:", data[ts:te]) };
-			space;
-			"ch) ";
+			"(" digit . "." . digit space "ch)" space => {
+				audio := getLastAudioMeta(meta)
+				audio.Channels = data[ts-1:te-5]
+				fmt.Printf("c-%s:", audio.Channels)
+			};
 # Ignore this bit
 			"(iso" digit{3} "-" digit ":" space lower{3} "),";
 # Hertz
 			space;
-			digit+ "Hz," => { fmt.Printf("d-%s:", data[ts:te-3]) };
+			digit+ "Hz," => {
+				audio := getLastAudioMeta(meta)
+				audio.Frequency = parseInt(data[ts:te-3])
+				fmt.Printf("d-%s:", audio.Frequency)
+			};
 			space;
 # Bps
-			digit+ "bps" => { fmt.Printf("e-%s", data[ts:te-3]); fret; };
-			*|;
+			digit+ "bps" => {
+				audio := getLastAudioMeta(meta)
+				audio.Bps = parseInt(data[ts:te-3])
+		 		fmt.Printf("e-%s", audio.Bps)
+				fret;
+			};
+		*|;
 		subtype = "Bitmap" | "Text";
 		format = "VOBSUB" | "UTF-8";
 		subtitle := |*
-			[A-Z] alpha+ - subtype - format => { fmt.Printf("a-%s:", data[ts:te]); };
+			[A-Z] alpha+ - subtype - format => {
+				subtitle := getLastSubtitleMeta(meta)
+				subtitle.Language = data[ts:te];
+				fmt.Printf("a-%s:", subtitle.Language);
+			};
 			space;
 			"(iso" digit{3} "-" digit ":" space lower{3} ")";
 			space;
-			"(" subtype ")" => { fmt.Printf("b-%s:", data[ts+1:te-1]); };
-			"(" format ")" => { fmt.Printf("c-%s", data[ts+1:te-1]); fret; };
+			"(" subtype ")" => {
+				subtitle := getLastSubtitleMeta(meta)
+				subtitle.Type = data[ts+1:te-1]
+				fmt.Printf("b-%s:", subtitle.Type)
+			};
+			"(" format ")" => {
+				subtitle := getLastSubtitleMeta(meta)
+				subtitle.Format = data[ts+1:te-1]
+				fmt.Printf("c-%s", subtitle.Format)
+				fret;
+			};
 		*|;
 		word = [a-z]+;
 		prefix = space+ "+";
@@ -156,8 +200,12 @@ func parseOutput(data string) HandBrakeMeta {
 			track @{
 				switch section {
 				case AUDIO:
+					audio := AudioMeta{}
+					meta.Audio = append(meta.Audio, audio)
 					fcall atrack;
 				case SUBTITLE:
+					subtitle := SubtitleMeta{}
+					meta.Subtitle = append(meta.Subtitle, subtitle)
 					fcall subtitle;
 				}
 			}

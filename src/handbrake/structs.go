@@ -5,7 +5,7 @@ import ()
 type AudioMeta struct {
 	Language  string
 	Codec     string
-	Channels  float32
+	Channels  string
 	Frequency int
 	Bps       int
 }
@@ -13,6 +13,7 @@ type AudioMeta struct {
 type SubtitleMeta struct {
 	Language string
 	Type     string
+	Format	 string
 }
 
 type HandBrakeMeta struct {

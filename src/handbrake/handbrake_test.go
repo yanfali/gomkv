@@ -93,3 +93,49 @@ func Test_fps(t *testing.T) {
 		t.Errorf("expected %f, got %f", fps, meta.Fps)
 	}
 }
+
+func Test_AudioLanguage(t *testing.T) {
+	if len(meta.Audio) != 1 {
+		t.Error("No audio track found")
+	}
+	if meta.Audio[0].Language == "English" {
+		t.Log("ok")
+	} else {
+		t.Error("expected English, got %s", meta.Audio[0].Language)
+	}
+}
+
+func Test_AudioFrequency(t *testing.T) {
+	if meta.Audio[0].Frequency == 48000 {
+		t.Log("ok")
+	} else {
+		t.Error("expected 48KHz, got %d", meta.Audio[0].Frequency)
+	}
+}
+
+func Test_AudioBps(t *testing.T) {
+	if meta.Audio[0].Bps == 448000 {
+		t.Log("ok")
+	} else {
+		t.Error("expected 448KBps, got %d", meta.Audio[0].Bps)
+	}
+}
+
+func Test_SubtitleCount(t *testing.T) {
+	if len(meta.Subtitle) == 3 {
+		t.Log("ok")
+	} else {
+		t.Error("expected 3 subtitles, found %d", len(meta.Subtitle))
+	}
+}
+
+func Test_SubtitleLanguage(t *testing.T) {
+	expected := []string { "English", "Spanish", "English" }
+
+	for index, subtitle := range meta.Subtitle {
+		if subtitle.Language != expected[index] {
+			t.Error("expected %s as language %d, got %s", expected[index], index, subtitle.Language)
+		}
+	}
+	t.Log("ok")
+}
