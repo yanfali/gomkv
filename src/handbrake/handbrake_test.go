@@ -53,3 +53,12 @@ func Test_parseTime(t *testing.T) {
 		t.Errorf("expected 5589, got %f", meta.Duration)
 	}
 }
+
+func Test_parseWidthHeight(t *testing.T) {
+	expHeight, expWidth := 480, 720
+	if meta.Height == expHeight && meta.Width == expWidth {
+		t.Log("ok")
+	} else {
+		t.Errorf("expected %d x %d, got %d x %d", expWidth, expHeight, meta.Width, meta.Height)
+	}
+}

@@ -35,6 +35,15 @@ func parseTime(timestring string) float64 {
 	return length
 }
 
+func parseInt(value string) int {
+	if result, err := strconv.ParseInt(value, 10, 32); err != nil {
+		panic(err)
+	} else {
+		return int(result)
+	}
+	return 0
+}
+
 func parseOutput(data string) HandBrakeMeta {
 	cs, p, pe, eof := 0, 0, len(data), 0
 	top, ts, te, act := 0,0,0,0
@@ -63,7 +72,13 @@ func parseOutput(data string) HandBrakeMeta {
 		*|;
 		picture := |*
 			space*;
-			digit{3,4} "x" digit{3,4} "," => { fmt.Printf("1-%s:", data[ts:te-1]); };
+			digit{3,4} "x" digit{3,4} "," => {
+				raw := data[ts:te-1];
+				values := strings.Split(raw, "x");
+				meta.Width = parseInt(values[0]);
+				meta.Height = parseInt(values[1]);
+				fmt.Printf("1-%s:", data[ts:te-1]);
+			};
 			space*;
 			"pixel" space+ "aspect:";
 			digit{1,4} "/" digit{1,4} "," => { fmt.Printf("2-%s:", data[ts:te-1]); };
