@@ -4,6 +4,8 @@ import (
 	"testing"
 )
 
+
+
 var data string = `+ title 1:
   + stream: source code.mkv
   + duration: 01:33:09
@@ -34,6 +36,8 @@ var data string = `+ title 1:
     + 1, English (iso639-2: eng) (Bitmap)(VOBSUB)
     + 2, Spanish (iso639-2: spa) (Bitmap)(VOBSUB)
     + 3, English (iso639-2: eng) (Bitmap)(VOBSUB)
+  + stream: source code.mkv
+  + duration: 01:33:09
 `
 
 var meta = parseOutput(data)
@@ -60,5 +64,32 @@ func Test_parseWidthHeight(t *testing.T) {
 		t.Log("ok")
 	} else {
 		t.Errorf("expected %d x %d, got %d x %d", expWidth, expHeight, meta.Width, meta.Height)
+	}
+}
+
+func Test_parsePixelAspect(t *testing.T) {
+	expected := "2560/2151"
+	if meta.Pixelaspect == expected {
+		t.Log("ok")
+	} else {
+		t.Errorf("expected %s, got %s", expected, meta.Pixelaspect)
+	}
+}
+
+func Test_aspectRatio(t *testing.T) {
+	ar := "1.79"
+	if meta.Aspect == ar {
+		t.Log("ok")
+	} else {
+		t.Errorf("expected %f, got %f", ar, meta.Aspect)
+	}
+}
+
+func Test_fps(t *testing.T) {
+	fps := "29.970"
+	if meta.Fps == fps {
+		t.Log("ok")
+	} else {
+		t.Errorf("expected %f, got %f", fps, meta.Fps)
 	}
 }

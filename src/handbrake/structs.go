@@ -21,8 +21,8 @@ type HandBrakeMeta struct {
 	Height      int
 	Width       int
 	Pixelaspect string
-	Aspect      float32
-	Fps         float32
+	Aspect      string
+	Fps         string
 	Autocrop    string
 	Audio       []AudioMeta
 	Subtitle    []SubtitleMeta

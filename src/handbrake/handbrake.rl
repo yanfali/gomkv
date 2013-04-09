@@ -81,13 +81,23 @@ func parseOutput(data string) HandBrakeMeta {
 			};
 			space*;
 			"pixel" space+ "aspect:";
-			digit{1,4} "/" digit{1,4} "," => { fmt.Printf("2-%s:", data[ts:te-1]); };
+			digit{1,4} "/" digit{1,4} "," => {
+				meta.Pixelaspect = data[ts:te-1]
+				fmt.Printf("2-%s:", meta.Pixelaspect);
+			};
 			space*;
-			"display" space+ "aspect:";
+			"display" space+ "aspect:" space*;
+			digit . "." . digit{1,3} "," => {
+				meta.Aspect = data[ts:te-1]
+				fmt.Printf("3-%s:", data[ts:te-1])
+			};
 			space*;
-			digit . "." . digit{1,3} "," => { fmt.Printf("3-%s:", data[ts:te-1]); };
-			space*;
-			digit{2} . "." digit{3} space+ "fps" "\n" => { fmt.Printf("4-%s", data[ts:te-5]); p -= 1; fret; };
+			digit{2} . "." digit{3} space+ "fps" "\n" => {
+				raw := data[ts:te-5]
+				meta.Fps = raw
+				fmt.Printf("4-%s", meta.Fps)
+				p -= 1; fret;
+			};
 		*|;
 		crop := |*
 			space*;
