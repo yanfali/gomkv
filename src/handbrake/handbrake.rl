@@ -63,18 +63,16 @@ func parseOutput(data string) HandBrakeMeta {
 		*|;
 		picture := |*
 			space*;
-			digit{3,4} "x" digit{3,4} => { fmt.Printf("%s:", data[ts:te]); fret;};
-		*|;
-		paspect := |*
+			digit{3,4} "x" digit{3,4} "," => { fmt.Printf("1-%s:", data[ts:te-1]); };
 			space*;
-			digit{1,4} "/" digit{1,4} => { fmt.Printf("%s:", data[ts:te]); fret; };
-		*|;
-		daspect := |*
+			"pixel" space+ "aspect:";
+			digit{1,4} "/" digit{1,4} "," => { fmt.Printf("2-%s:", data[ts:te-1]); };
 			space*;
-			digit . "." . digit{1,3} => { fmt.Printf("%s:", data[ts:te]); fret; };
-		*|;
-		sfps := |*
-			"\n" => { ts -= 10; fmt.Printf("%s", data[ts:te-5]); p -= 1; fret; };
+			"display" space+ "aspect:";
+			space*;
+			digit . "." . digit{1,3} "," => { fmt.Printf("3-%s:", data[ts:te-1]); };
+			space*;
+			digit{2} . "." digit{3} space+ "fps" "\n" => { fmt.Printf("4-%s", data[ts:te-5]); p -= 1; fret; };
 		*|;
 		crop := |*
 			space*;
@@ -118,20 +116,14 @@ func parseOutput(data string) HandBrakeMeta {
 		prefixsp = prefix space;
 		stream = prefixsp "stream:";
 		duration = prefixsp "duration:";
-		size = prefixsp "size:";
-		pixelaspect = prefix any+ "pixel" space+ "aspect:";
-		displayaspect = prefix any+ "display" space+ "aspect:";
-		fps = prefix any+ "fps";
+		video = prefixsp "size:";
 		autocrop = prefixsp "autocrop:";
 		track = prefixsp digit "," space;
 		main := ( 
 			newline |
 			stream @{ fcall stitle; } |
 			duration @{ fcall sduration; } |
-			size @{ fcall picture; } |
-			pixelaspect @{ fcall paspect; } |
-			displayaspect @{ fcall daspect; } |
-			fps @{ fcall sfps; } |
+			video @{ fcall picture; } |
 			autocrop @{ fcall crop; } |
 			prefixsp "chapters:" @{ section = CHAPTER; fmt.Printf("chapter"); } |
 			prefixsp "audio tracks:" @{ section = AUDIO; fmt.Printf("audio"); } |
