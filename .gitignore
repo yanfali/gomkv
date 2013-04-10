@@ -1,1 +1,7 @@
 *.swp
+bin
+*.test
+*.dot
+src/handbrake/handbrake.go
+src/gomkv/gomkv
+
