@@ -36,11 +36,9 @@ var data string = `+ title 1:
     + 1, English (iso639-2: eng) (Bitmap)(VOBSUB)
     + 2, Spanish (iso639-2: spa) (Bitmap)(VOBSUB)
     + 3, English (iso639-2: eng) (Bitmap)(VOBSUB)
-  + stream: source code.mkv
-  + duration: 01:33:09
 `
 
-var meta = parseOutput(data)
+var meta = ParseOutput(data)
 func Test_parseTitle(t *testing.T) {
 	exp := "source code.mkv"
 	if meta.Title == exp {
@@ -101,7 +99,7 @@ func Test_AudioLanguage(t *testing.T) {
 	if meta.Audio[0].Language == "English" {
 		t.Log("ok")
 	} else {
-		t.Error("expected English, got %s", meta.Audio[0].Language)
+		t.Errorf("expected English, got '%s'", meta.Audio[0].Language)
 	}
 }
 
@@ -134,7 +132,7 @@ func Test_SubtitleLanguage(t *testing.T) {
 
 	for index, subtitle := range meta.Subtitle {
 		if subtitle.Language != expected[index] {
-			t.Error("expected %s as language %d, got %s", expected[index], index, subtitle.Language)
+			t.Errorf("expected %s as language %d, got '%s'", expected[index], index, subtitle.Language)
 		}
 	}
 	t.Log("ok")
