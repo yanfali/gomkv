@@ -1,11 +1,11 @@
 package main
 
 import (
-	"path/filepath"
-	"fmt"
-	"os"
 	"exec"
+	"fmt"
 	"handbrake"
+	"os"
+	"path/filepath"
 )
 
 var workingDir string
@@ -35,7 +35,14 @@ func main() {
 		fmt.Fprintf(os.Stderr, "No mkv/m4v files found in path. Exiting.\n")
 		os.Exit(1)
 	}
-	std, err := exec.Command("HandBrakeCLI", "-t0", "-i", files[0])
-	meta := handbrake.ParseOutput(std.Err)
-	fmt.Print(meta)
+	for _, file := range files {
+		std, err := exec.Command("HandBrakeCLI", "-t0", "-i", file)
+		if err != nil {
+			panic(err)
+		}
+		meta := handbrake.ParseOutput(std.Err)
+		fmt.Println(meta)
+		result, err := handbrake.FormatCLIOutput(meta)
+		fmt.Println(result)
+	}
 }
