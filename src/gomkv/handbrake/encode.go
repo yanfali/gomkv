@@ -67,18 +67,28 @@ func addAudioOpts(buf *bytes.Buffer, audiometa []AudioMeta) error {
 	return nil
 }
 
-func FormatCLIOutput(meta HandBrakeMeta, config config.GomkvConfig) (string, error) {
+func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, error) {
 	buf := bytes.NewBuffer([]byte{})
 	title := strings.Replace(meta.Title, " ", "\\ ", -1)
 	fmt.Fprintf(buf, "%s", CLI)
-	fmt.Fprintf(buf, " -Z %s", `"High Profile"`)
+	fmt.Fprintf(buf, " -Z %s", config.Profile)
 	fmt.Fprintf(buf, " -i %s", title)
 	fmt.Fprintf(buf, " -t1")
 
 	// TODO Make this smarter
 	// - deal with overwriting same path
 	// - deal with episodes
-	output := filepath.Base(title)
+	var output string
+	if config.Prefix == "" {
+		output = filepath.Base(title)
+	} else {
+		if config.Episodic {
+			output = fmt.Sprintf("%s_S%dE%02d.mkv", config.Prefix, config.SeasonOffset, config.EpisodeOffset)
+			config.EpisodeOffset++
+		} else {
+			output = config.Prefix + ".mkv"
+		}
+	}
 
 	addAudioOpts(buf, meta.Audio)
 	addSubtitleOpts(buf, meta.Subtitle)

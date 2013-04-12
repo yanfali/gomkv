@@ -23,6 +23,10 @@ func init() {
 	}
 	flag.StringVar(&defaults.Profile, "prof", config.DEFAULT_PROFILE, "Default Encoding Profile. Defaults to 'High Profile'")
 	flag.StringVar(&defaults.Prefix, "pref", config.DEFAULT_PREFIX, "Default Prefix for output filename(s)")
+	flag.BoolVar(&defaults.Episodic, "batch", false, "Videos are episodes of a series")
+	flag.IntVar(&defaults.EpisodeOffset, "epis", 1, "Episode starting offset.")
+	flag.IntVar(&defaults.SeasonOffset, "seas", 1, "Season starting offset.")
+	flag.Parse()
 }
 
 func main() {
@@ -48,7 +52,7 @@ func main() {
 		}
 		meta := handbrake.ParseOutput(std.Err)
 		fmt.Println(meta)
-		result, err := handbrake.FormatCLIOutput(meta, defaults)
+		result, err := handbrake.FormatCLIOutput(meta, &defaults)
 		fmt.Println(result)
 	}
 }

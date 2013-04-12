@@ -3,6 +3,5 @@ bin
 *.test
 *.dot
 **/handbrake.go
-**/gomkv
 pkg
 

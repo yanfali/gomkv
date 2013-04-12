@@ -6,6 +6,9 @@ const (
 )
 
 type GomkvConfig struct {
-	Profile string
-	Prefix  string
+	Profile       string
+	Prefix        string
+	EpisodeOffset int
+	SeasonOffset  int
+	Episodic      bool
 }
