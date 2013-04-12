@@ -27,7 +27,15 @@ func init() {
 	flag.IntVar(&defaults.EpisodeOffset, "episode", 1, "Episode starting offset.")
 	flag.IntVar(&defaults.SeasonOffset, "season", 1, "Season starting offset.")
 	flag.BoolVar(&defaults.AacOnly, "aac", false, "Encode audio using aac, instead of copying")
+	flag.BoolVar(&defaults.Mobile, "mobile", false, "Use mobile friendly settings")
+	flag.BoolVar(&defaults.EnableSubs, "subs", true, "Copy subtitles")
 	flag.Parse()
+	if defaults.Mobile {
+		defaults.Profile = "Universal"
+		defaults.AacOnly = true
+		defaults.M4v = true
+		defaults.EnableSubs = false
+	}
 }
 
 func main() {

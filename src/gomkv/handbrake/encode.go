@@ -83,19 +83,34 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 	// - deal with overwriting same path
 	// - deal with episodes
 	var output string
+	var format string
+	if config.M4v {
+		format = ".m4v"
+	} else {
+		format = ".mkv"
+	}
+
 	if config.Prefix == "" {
 		output = filepath.Base(title)
+		i := strings.LastIndex(output, ".")
+		if i == -1 {
+			output += format
+		} else {
+			output = output[:i] + format
+		}
 	} else {
 		if config.Episodic {
-			output = fmt.Sprintf("%s_S%dE%02d.mkv", config.Prefix, config.SeasonOffset, config.EpisodeOffset)
+			output = fmt.Sprintf("%s_S%dE%02d%s", config.Prefix, config.SeasonOffset, config.EpisodeOffset, format)
 			config.EpisodeOffset++
 		} else {
-			output = config.Prefix + ".mkv"
+			output = config.Prefix + format
 		}
 	}
 
 	addAudioOpts(buf, meta.Audio, config.AacOnly)
-	addSubtitleOpts(buf, meta.Subtitle)
+	if config.EnableSubs {
+		addSubtitleOpts(buf, meta.Subtitle)
+	}
 
 	fmt.Fprintf(buf, " -o %s", output)
 	fmt.Fprintf(buf, "\n")

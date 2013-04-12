@@ -12,4 +12,7 @@ type GomkvConfig struct {
 	SeasonOffset  int
 	Episodic      bool
 	AacOnly       bool
+	Mobile        bool
+	M4v           bool
+	EnableSubs    bool
 }
