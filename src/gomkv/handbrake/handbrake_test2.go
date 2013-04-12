@@ -22,6 +22,7 @@ var data2 string = `+ title 1:
 `
 
 var meta2 = ParseOutput(data2)
+
 func Test_parseTitleTransformers(t *testing.T) {
 	exp := "TRANSFORMERS_1984_S1E01.mkv"
 	if meta2.Title == exp {

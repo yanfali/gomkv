@@ -2,11 +2,12 @@ package handbrake
 
 import (
 	"fmt"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 type Section int
+
 const (
 	NONE Section = iota
 	CHAPTER
@@ -15,7 +16,7 @@ const (
 )
 
 func parseTime(timestring string) float64 {
-	rawTime := strings.Trim(timestring, " \n");
+	rawTime := strings.Trim(timestring, " \n")
 	splitTime := strings.Split(rawTime, ":")
 	var length float64
 	hours, err := strconv.ParseInt(splitTime[0], 10, 8)
@@ -54,7 +55,8 @@ func getLastSubtitleMeta(meta *HandBrakeMeta) *SubtitleMeta {
 }
 
 var debugEnabled bool = true
-func debug(format string, args... interface{}) {
+
+func debug(format string, args ...interface{}) {
 	if debugEnabled {
 		fmt.Printf(format, args...)
 	}

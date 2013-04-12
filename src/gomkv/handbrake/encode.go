@@ -3,6 +3,7 @@ package handbrake
 import (
 	"bytes"
 	"fmt"
+	"gomkv/config"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -66,7 +67,7 @@ func addAudioOpts(buf *bytes.Buffer, audiometa []AudioMeta) error {
 	return nil
 }
 
-func FormatCLIOutput(meta HandBrakeMeta) (string, error) {
+func FormatCLIOutput(meta HandBrakeMeta, config config.GomkvConfig) (string, error) {
 	buf := bytes.NewBuffer([]byte{})
 	title := strings.Replace(meta.Title, " ", "\\ ", -1)
 	fmt.Fprintf(buf, "%s", CLI)

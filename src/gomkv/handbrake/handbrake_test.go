@@ -4,8 +4,6 @@ import (
 	"testing"
 )
 
-
-
 var data string = `+ title 1:
   + stream: source code.mkv
   + duration: 01:33:09
@@ -39,6 +37,7 @@ var data string = `+ title 1:
 `
 
 var meta = ParseOutput(data)
+
 func Test_parseTitle(t *testing.T) {
 	exp := "source code.mkv"
 	if meta.Title == exp {
@@ -128,7 +127,7 @@ func Test_SubtitleCount(t *testing.T) {
 }
 
 func Test_SubtitleLanguage(t *testing.T) {
-	expected := []string { "English", "Spanish", "English" }
+	expected := []string{"English", "Spanish", "English"}
 
 	for index, subtitle := range meta.Subtitle {
 		if subtitle.Language != expected[index] {

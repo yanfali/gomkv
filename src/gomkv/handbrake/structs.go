@@ -13,7 +13,7 @@ type AudioMeta struct {
 type SubtitleMeta struct {
 	Language string
 	Type     string
-	Format	 string
+	Format   string
 }
 
 type HandBrakeMeta struct {

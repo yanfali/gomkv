@@ -2,8 +2,10 @@ package main
 
 import (
 	"exec"
+	"flag"
 	"fmt"
-	"handbrake"
+	"gomkv/config"
+	"gomkv/handbrake"
 	"os"
 	"path/filepath"
 )
@@ -11,12 +13,16 @@ import (
 var workingDir string
 var files []string
 
+var defaults = config.GomkvConfig{}
+
 func init() {
 	var err error
 	workingDir, err = filepath.Abs(".")
 	if err != nil {
 		panic(err)
 	}
+	flag.StringVar(&defaults.Profile, "prof", config.DEFAULT_PROFILE, "Default Encoding Profile. Defaults to 'High Profile'")
+	flag.StringVar(&defaults.Prefix, "pref", config.DEFAULT_PREFIX, "Default Prefix for output filename(s)")
 }
 
 func main() {
@@ -42,7 +48,7 @@ func main() {
 		}
 		meta := handbrake.ParseOutput(std.Err)
 		fmt.Println(meta)
-		result, err := handbrake.FormatCLIOutput(meta)
+		result, err := handbrake.FormatCLIOutput(meta, defaults)
 		fmt.Println(result)
 	}
 }
