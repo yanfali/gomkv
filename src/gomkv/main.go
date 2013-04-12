@@ -21,11 +21,11 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	flag.StringVar(&defaults.Profile, "prof", config.DEFAULT_PROFILE, "Default Encoding Profile. Defaults to 'High Profile'")
-	flag.StringVar(&defaults.Prefix, "pref", config.DEFAULT_PREFIX, "Default Prefix for output filename(s)")
-	flag.BoolVar(&defaults.Episodic, "batch", false, "Videos are episodes of a series")
-	flag.IntVar(&defaults.EpisodeOffset, "epis", 1, "Episode starting offset.")
-	flag.IntVar(&defaults.SeasonOffset, "seas", 1, "Season starting offset.")
+	flag.StringVar(&defaults.Profile, "profile", config.DEFAULT_PROFILE, "Default Encoding Profile. Defaults to 'High Profile'")
+	flag.StringVar(&defaults.Prefix, "prefix", config.DEFAULT_PREFIX, "Default Prefix for output filename(s)")
+	flag.BoolVar(&defaults.Episodic, "series", false, "Videos are episodes of a series")
+	flag.IntVar(&defaults.EpisodeOffset, "episode", 1, "Episode starting offset.")
+	flag.IntVar(&defaults.SeasonOffset, "season", 1, "Season starting offset.")
 	flag.Parse()
 }
 
