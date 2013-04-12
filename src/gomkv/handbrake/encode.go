@@ -36,7 +36,7 @@ func addSubtitleOpts(buf *bytes.Buffer, subtitlemeta []SubtitleMeta) error {
 	return nil
 }
 
-func addAudioOpts(buf *bytes.Buffer, audiometa []AudioMeta) error {
+func addAudioOpts(buf *bytes.Buffer, audiometa []AudioMeta, aacOnly bool) error {
 	if len(audiometa) == 0 {
 		return nil
 	}
@@ -46,6 +46,10 @@ func addAudioOpts(buf *bytes.Buffer, audiometa []AudioMeta) error {
 		if audio.Language == "English" {
 			audioTracks = append(audioTracks, i+1)
 		} else {
+			continue
+		}
+		if aacOnly {
+			audioOptions = append(audioOptions, "faac")
 			continue
 		}
 		switch audio.Codec {
@@ -90,7 +94,7 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 		}
 	}
 
-	addAudioOpts(buf, meta.Audio)
+	addAudioOpts(buf, meta.Audio, config.AacOnly)
 	addSubtitleOpts(buf, meta.Subtitle)
 
 	fmt.Fprintf(buf, " -o %s", output)

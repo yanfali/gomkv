@@ -11,4 +11,5 @@ type GomkvConfig struct {
 	EpisodeOffset int
 	SeasonOffset  int
 	Episodic      bool
+	AacOnly       bool
 }

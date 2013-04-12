@@ -26,6 +26,7 @@ func init() {
 	flag.BoolVar(&defaults.Episodic, "series", false, "Videos are episodes of a series")
 	flag.IntVar(&defaults.EpisodeOffset, "episode", 1, "Episode starting offset.")
 	flag.IntVar(&defaults.SeasonOffset, "season", 1, "Season starting offset.")
+	flag.BoolVar(&defaults.AacOnly, "aac", false, "Encode audio using aac, instead of copying")
 	flag.Parse()
 }
 
