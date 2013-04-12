@@ -81,7 +81,6 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 
 	// TODO Make this smarter
 	// - deal with overwriting same path
-	// - deal with episodes
 	var output string
 	var format string
 	if config.M4v {
