@@ -85,6 +85,23 @@ func Test_ValidateBasicEncoding(t *testing.T) {
 	}
 }
 
+func Test_ValidateFormatM4v(t *testing.T) {
+	meta, conf := harness()
+	conf.Profile = "Universal"
+	conf.M4v = true
+	meta.Title = "a.mkv"
+	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o a.m4v"
+	if result, err := FormatCLIOutput(meta, &conf); err != nil {
+		t.Errorf("unexpected error %s", err)
+	} else {
+		if result == expected {
+			t.Log("ok")
+			return
+		}
+		t.Errorf("Expected %s got '%s'", expected, result)
+	}
+}
+
 func Test_ValidatePrefix(t *testing.T) {
 	meta, conf := harness()
 	conf.Profile = "Universal"
@@ -147,6 +164,43 @@ func Test_ValidateEpisodeOffset(t *testing.T) {
 	conf.EpisodeOffset = 15 
 	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o b_S0E15.mkv"
+	if result, err := FormatCLIOutput(meta, &conf); err != nil {
+		t.Errorf("unexpected error %s", err)
+	} else {
+		if result == expected {
+			t.Log("ok")
+			return
+		}
+		t.Errorf("Expected %s got '%s'", expected, result)
+	}
+}
+
+func Test_ValidateBasicAudio(t *testing.T) {
+	meta, conf := harness()
+	conf.Profile = "Universal"
+	meta.Title = "a.mkv"
+	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000}
+	meta.Audio = []AudioMeta{atrack}
+	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -a1 -E copy:ac3 -o a.mkv"
+	if result, err := FormatCLIOutput(meta, &conf); err != nil {
+		t.Errorf("unexpected error %s", err)
+	} else {
+		if result == expected {
+			t.Log("ok")
+			return
+		}
+		t.Errorf("Expected %s got '%s'", expected, result)
+	}
+}
+
+func Test_ValidateBasicAudioAacOnly(t *testing.T) {
+	meta, conf := harness()
+	conf.Profile = "Universal"
+	conf.AacOnly = true
+	meta.Title = "a.mkv"
+	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000}
+	meta.Audio = []AudioMeta{atrack}
+	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -a1 -E faac -o a.mkv"
 	if result, err := FormatCLIOutput(meta, &conf); err != nil {
 		t.Errorf("unexpected error %s", err)
 	} else {
