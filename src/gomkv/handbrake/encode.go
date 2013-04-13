@@ -2,6 +2,7 @@ package handbrake
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"gomkv/config"
 	"path/filepath"
@@ -71,7 +72,23 @@ func addAudioOpts(buf *bytes.Buffer, audiometa []AudioMeta, aacOnly bool) error 
 	return nil
 }
 
+var EmptyProfile = errors.New("Encoding profile is empty!")
+var EmptyTitle = errors.New("Title is empty!")
+
+func validateConfig(meta HandBrakeMeta, config *config.GomkvConfig) error {
+	if config.Profile == "" {
+		return EmptyProfile
+	}
+	if meta.Title == "" {
+		return EmptyTitle
+	}
+	return nil
+}
+
 func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, error) {
+	if err := validateConfig(meta, config); err != nil {
+		return "", err
+	}
 	buf := bytes.NewBuffer([]byte{})
 	title := strings.Replace(meta.Title, " ", "\\ ", -1)
 	fmt.Fprintf(buf, "%s", CLI)
