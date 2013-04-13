@@ -10,6 +10,20 @@ func harness() (HandBrakeMeta, config.GomkvConfig) {
 	return HandBrakeMeta{}, config.GomkvConfig{}
 }
 
+type SimpleFunc func() (string, error)
+
+func equals_harness(fn SimpleFunc, t *testing.T, expected string) {
+	if result, err := fn(); err != nil {
+		t.Errorf("unexpected error %s", err)
+	} else {
+		if result == expected {
+			t.Log("ok")
+			return
+		}
+		t.Errorf("Expected %s got '%s'", expected, result)
+	}
+}
+
 func Test_ValidateProfile(t *testing.T) {
 	meta, conf := harness()
 	if _, err := FormatCLIOutput(meta, &conf); err != nil {
@@ -74,15 +88,9 @@ func Test_ValidateBasicEncoding(t *testing.T) {
 	conf.Profile = "Universal"
 	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o a.mkv"
-	if result, err := FormatCLIOutput(meta, &conf); err != nil {
-		t.Errorf("unexpected error %s", err)
-	} else {
-		if result == expected {
-			t.Log("ok")
-			return
-		}
-		t.Errorf("Expected %s got '%s'", expected, result)
-	}
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
 }
 
 func Test_ValidateFormatM4v(t *testing.T) {
@@ -91,15 +99,9 @@ func Test_ValidateFormatM4v(t *testing.T) {
 	conf.M4v = true
 	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o a.m4v"
-	if result, err := FormatCLIOutput(meta, &conf); err != nil {
-		t.Errorf("unexpected error %s", err)
-	} else {
-		if result == expected {
-			t.Log("ok")
-			return
-		}
-		t.Errorf("Expected %s got '%s'", expected, result)
-	}
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
 }
 
 func Test_ValidatePrefix(t *testing.T) {
@@ -108,15 +110,9 @@ func Test_ValidatePrefix(t *testing.T) {
 	conf.Prefix = "b"
 	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o b.mkv"
-	if result, err := FormatCLIOutput(meta, &conf); err != nil {
-		t.Errorf("unexpected error %s", err)
-	} else {
-		if result == expected {
-			t.Log("ok")
-			return
-		}
-		t.Errorf("Expected %s got '%s'", expected, result)
-	}
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
 }
 
 func Test_ValidateEpisodes(t *testing.T) {
@@ -126,15 +122,9 @@ func Test_ValidateEpisodes(t *testing.T) {
 	conf.Episodic = true
 	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o b_S0E00.mkv"
-	if result, err := FormatCLIOutput(meta, &conf); err != nil {
-		t.Errorf("unexpected error %s", err)
-	} else {
-		if result == expected {
-			t.Log("ok")
-			return
-		}
-		t.Errorf("Expected %s got '%s'", expected, result)
-	}
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
 }
 
 func Test_ValidateSeasonOffset(t *testing.T) {
@@ -145,15 +135,9 @@ func Test_ValidateSeasonOffset(t *testing.T) {
 	conf.SeasonOffset = 3
 	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o b_S3E00.mkv"
-	if result, err := FormatCLIOutput(meta, &conf); err != nil {
-		t.Errorf("unexpected error %s", err)
-	} else {
-		if result == expected {
-			t.Log("ok")
-			return
-		}
-		t.Errorf("Expected %s got '%s'", expected, result)
-	}
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
 }
 
 func Test_ValidateEpisodeOffset(t *testing.T) {
@@ -164,15 +148,9 @@ func Test_ValidateEpisodeOffset(t *testing.T) {
 	conf.EpisodeOffset = 15 
 	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o b_S0E15.mkv"
-	if result, err := FormatCLIOutput(meta, &conf); err != nil {
-		t.Errorf("unexpected error %s", err)
-	} else {
-		if result == expected {
-			t.Log("ok")
-			return
-		}
-		t.Errorf("Expected %s got '%s'", expected, result)
-	}
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
 }
 
 func Test_ValidateBasicAudio(t *testing.T) {
@@ -182,15 +160,9 @@ func Test_ValidateBasicAudio(t *testing.T) {
 	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000}
 	meta.Audio = []AudioMeta{atrack}
 	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -a1 -E copy:ac3 -o a.mkv"
-	if result, err := FormatCLIOutput(meta, &conf); err != nil {
-		t.Errorf("unexpected error %s", err)
-	} else {
-		if result == expected {
-			t.Log("ok")
-			return
-		}
-		t.Errorf("Expected %s got '%s'", expected, result)
-	}
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
 }
 
 func Test_ValidateBasicAudioAacOnly(t *testing.T) {
@@ -201,13 +173,7 @@ func Test_ValidateBasicAudioAacOnly(t *testing.T) {
 	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000}
 	meta.Audio = []AudioMeta{atrack}
 	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -a1 -E faac -o a.mkv"
-	if result, err := FormatCLIOutput(meta, &conf); err != nil {
-		t.Errorf("unexpected error %s", err)
-	} else {
-		if result == expected {
-			t.Log("ok")
-			return
-		}
-		t.Errorf("Expected %s got '%s'", expected, result)
-	}
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
 }
