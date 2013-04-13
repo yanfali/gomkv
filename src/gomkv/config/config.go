@@ -12,7 +12,14 @@ type GomkvConfig struct {
 	SeasonOffset  int
 	Episodic      bool
 	AacOnly       bool
-	Mobile        bool
 	M4v           bool
 	EnableSubs    bool
+}
+
+func (g *GomkvConfig) Mobile() *GomkvConfig {
+	g.Profile = "Universal"
+	g.AacOnly = true
+	g.M4v = true
+	g.EnableSubs = false
+	return g
 }
