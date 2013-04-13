@@ -177,3 +177,25 @@ func Test_ValidateBasicAudioAacOnly(t *testing.T) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
 }
+
+func Test_ValidateMobile(t *testing.T) {
+	meta, conf := harness()
+	conf.Mobile()
+	meta.Title = "a.mkv"
+	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o a.m4v"
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
+}
+
+func Test_ValidateMobileWithAudio(t *testing.T) {
+	meta, conf := harness()
+	conf.Mobile()
+	meta.Title = "a.mkv"
+	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -a1 -E faac -o a.m4v"
+	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000}
+	meta.Audio = []AudioMeta{atrack}
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
+}
