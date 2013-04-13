@@ -129,7 +129,6 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 	}
 
 	fmt.Fprintf(buf, " -o %s", output)
-	fmt.Fprintf(buf, "\n")
 
 	return buf.String(), nil
 }
