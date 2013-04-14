@@ -2,6 +2,7 @@ package handbrake
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -54,11 +55,11 @@ func getLastSubtitleMeta(meta *HandBrakeMeta) *SubtitleMeta {
 	return &meta.Subtitle[len(meta.Subtitle)-1]
 }
 
-var debugEnabled bool = false
+var DebugEnabled bool = false
 
 func debug(format string, args ...interface{}) {
-	if debugEnabled {
-		fmt.Printf(format, args...)
+	if DebugEnabled {
+		fmt.Fprintf(os.Stderr, format, args...)
 	}
 }
 

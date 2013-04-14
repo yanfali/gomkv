@@ -14,9 +14,17 @@ var workingDir string
 var files []string
 
 var defaults = config.GomkvConfig{}
+var debug = false
+
+const (
+	DEBUG_LEVEL_BASIC = 1
+	DEBUG_LEVEL_RAGEL = 2
+	DEBUG_LEVEL_EXEC  = 3
+)
 
 func init() {
 	var err error
+	var debuglvl = 0
 	mobile := false
 	workingDir, err = filepath.Abs(".")
 	if err != nil {
@@ -30,18 +38,32 @@ func init() {
 	flag.BoolVar(&defaults.AacOnly, "aac", false, "Encode audio using aac, instead of copying")
 	flag.BoolVar(&mobile, "mobile", false, "Use mobile friendly settings")
 	flag.BoolVar(&defaults.EnableSubs, "subs", true, "Copy subtitles")
+	flag.IntVar(&debuglvl, "debug", 0, "Debug level 1..3")
 	flag.Parse()
+
+	switch {
+	case debuglvl == DEBUG_LEVEL_BASIC:
+		debug = true
+	case debuglvl == DEBUG_LEVEL_RAGEL:
+		debug = true
+		handbrake.DebugEnabled = true
+	case debuglvl == DEBUG_LEVEL_EXEC:
+		debug = true
+		handbrake.DebugEnabled = true
+		exec.Debug = true
+	}
+	if debuglvl > 0 {
+		fmt.Fprintf(os.Stderr, "Enabling debug level %d\n", debuglvl)
+	}
 	if mobile {
 		defaults.Mobile()
 	}
 }
 
-var debug = false
-
 func main() {
 	workingDir = filepath.Clean(workingDir)
 	if debug {
-		fmt.Println("Working Directory: " + workingDir)
+		fmt.Fprintln(os.Stderr, "Working Directory: "+workingDir)
 	}
 	mkv, err := filepath.Glob(workingDir + "/*.mkv")
 	if err != nil {
@@ -63,7 +85,7 @@ func main() {
 		}
 		meta := handbrake.ParseOutput(std.Err)
 		if debug {
-			fmt.Println(meta)
+			fmt.Fprintln(os.Stderr, meta)
 		}
 		result, err := handbrake.FormatCLIOutput(meta, &defaults)
 		fmt.Println(result)

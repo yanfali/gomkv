@@ -12,7 +12,7 @@ type Std struct {
 	Err string
 }
 
-var debug = false
+var Debug = false
 
 func Command(file string, params ...string) (Std, error) {
 	name, err := exec.LookPath(file)
@@ -32,7 +32,7 @@ func Command(file string, params ...string) (Std, error) {
 	}
 	outwriters := []io.Writer{stdoutbuf}
 	errwriters := []io.Writer{stderrbuf}
-	if debug {
+	if Debug {
 		outwriters = append(outwriters, os.Stdout)
 		errwriters = append(outwriters, os.Stderr)
 	}

@@ -145,7 +145,7 @@ func Test_ValidateEpisodeOffset(t *testing.T) {
 	conf.Profile = "Universal"
 	conf.Prefix = "b"
 	conf.Episodic = true
-	conf.EpisodeOffset = 15 
+	conf.EpisodeOffset = 15
 	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o b_S0E15.mkv"
 	equals_harness(func() (string, error) {
