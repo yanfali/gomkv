@@ -54,7 +54,7 @@ func getLastSubtitleMeta(meta *HandBrakeMeta) *SubtitleMeta {
 	return &meta.Subtitle[len(meta.Subtitle)-1]
 }
 
-var debugEnabled bool = true
+var debugEnabled bool = false
 
 func debug(format string, args ...interface{}) {
 	if debugEnabled {

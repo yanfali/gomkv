@@ -12,6 +12,8 @@ type Std struct {
 	Err string
 }
 
+var debug = false
+
 func Command(file string, params ...string) (Std, error) {
 	name, err := exec.LookPath(file)
 	if err != nil {
@@ -28,8 +30,14 @@ func Command(file string, params ...string) (Std, error) {
 	if err != nil {
 		return Std{}, err
 	}
-	teeout := io.MultiWriter(os.Stdout, stdoutbuf)
-	teeerr := io.MultiWriter(os.Stderr, stderrbuf)
+	outwriters := []io.Writer{stdoutbuf}
+	errwriters := []io.Writer{stderrbuf}
+	if debug {
+		outwriters = append(outwriters, os.Stdout)
+		errwriters = append(outwriters, os.Stderr)
+	}
+	teeout := io.MultiWriter(outwriters...)
+	teeerr := io.MultiWriter(errwriters...)
 
 	go io.Copy(teeout, stdout)
 	go io.Copy(teeerr, stderr)

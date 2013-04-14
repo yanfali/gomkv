@@ -92,7 +92,7 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 	buf := bytes.NewBuffer([]byte{})
 	title := strings.Replace(meta.Title, " ", "\\ ", -1)
 	fmt.Fprintf(buf, "%s", CLI)
-	fmt.Fprintf(buf, " -Z %s", config.Profile)
+	fmt.Fprintf(buf, " -Z \"%s\"", config.Profile)
 	fmt.Fprintf(buf, " -i %s", title)
 	fmt.Fprintf(buf, " -t1")
 

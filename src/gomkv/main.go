@@ -36,9 +36,13 @@ func init() {
 	}
 }
 
+var debug = false
+
 func main() {
 	workingDir = filepath.Clean(workingDir)
-	fmt.Println(workingDir)
+	if debug {
+		fmt.Println("Working Directory: " + workingDir)
+	}
 	mkv, err := filepath.Glob(workingDir + "/*.mkv")
 	if err != nil {
 		panic(err)
@@ -58,7 +62,9 @@ func main() {
 			panic(err)
 		}
 		meta := handbrake.ParseOutput(std.Err)
-		fmt.Println(meta)
+		if debug {
+			fmt.Println(meta)
+		}
 		result, err := handbrake.FormatCLIOutput(meta, &defaults)
 		fmt.Println(result)
 	}
