@@ -14,6 +14,8 @@ type GomkvConfig struct {
 	AacOnly       bool
 	M4v           bool
 	EnableSubs    bool
+	SrcDir        string
+	DestDir       string
 }
 
 func (g *GomkvConfig) Mobile() *GomkvConfig {

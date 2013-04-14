@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gomkv/config"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -128,7 +129,11 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 		addSubtitleOpts(buf, meta.Subtitle)
 	}
 
-	fmt.Fprintf(buf, " -o %s", output)
+	if config.DestDir != "" {
+		fmt.Fprintf(buf, " -o %s%c%s", config.DestDir, os.PathSeparator, output)
+	} else {
+		fmt.Fprintf(buf, " -o %s", output)
+	}
 
 	return buf.String(), nil
 }

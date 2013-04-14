@@ -87,7 +87,7 @@ func Test_ValidateBasicEncoding(t *testing.T) {
 	meta, conf := harness()
 	conf.Profile = "Universal"
 	meta.Title = "a.mkv"
-	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o a.mkv"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o a.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
@@ -98,7 +98,7 @@ func Test_ValidateFormatM4v(t *testing.T) {
 	conf.Profile = "Universal"
 	conf.M4v = true
 	meta.Title = "a.mkv"
-	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o a.m4v"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o a.m4v"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
@@ -109,7 +109,7 @@ func Test_ValidatePrefix(t *testing.T) {
 	conf.Profile = "Universal"
 	conf.Prefix = "b"
 	meta.Title = "a.mkv"
-	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o b.mkv"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o b.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
@@ -121,7 +121,7 @@ func Test_ValidateEpisodes(t *testing.T) {
 	conf.Prefix = "b"
 	conf.Episodic = true
 	meta.Title = "a.mkv"
-	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o b_S0E00.mkv"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o b_S0E00.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
@@ -134,7 +134,7 @@ func Test_ValidateSeasonOffset(t *testing.T) {
 	conf.Episodic = true
 	conf.SeasonOffset = 3
 	meta.Title = "a.mkv"
-	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o b_S3E00.mkv"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o b_S3E00.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
@@ -147,7 +147,7 @@ func Test_ValidateEpisodeOffset(t *testing.T) {
 	conf.Episodic = true
 	conf.EpisodeOffset = 15
 	meta.Title = "a.mkv"
-	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o b_S0E15.mkv"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o b_S0E15.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
@@ -159,7 +159,7 @@ func Test_ValidateBasicAudio(t *testing.T) {
 	meta.Title = "a.mkv"
 	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000}
 	meta.Audio = []AudioMeta{atrack}
-	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -a1 -E copy:ac3 -o a.mkv"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1 -E copy:ac3 -o a.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
@@ -172,7 +172,7 @@ func Test_ValidateBasicAudioAacOnly(t *testing.T) {
 	meta.Title = "a.mkv"
 	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000}
 	meta.Audio = []AudioMeta{atrack}
-	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -a1 -E faac -o a.mkv"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1 -E faac -o a.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
@@ -182,7 +182,7 @@ func Test_ValidateMobile(t *testing.T) {
 	meta, conf := harness()
 	conf.Mobile()
 	meta.Title = "a.mkv"
-	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -o a.m4v"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o a.m4v"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
@@ -192,9 +192,20 @@ func Test_ValidateMobileWithAudio(t *testing.T) {
 	meta, conf := harness()
 	conf.Mobile()
 	meta.Title = "a.mkv"
-	expected := "HandBrakeCLI -Z Universal -i a.mkv -t1 -a1 -E faac -o a.m4v"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1 -E faac -o a.m4v"
 	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000}
 	meta.Audio = []AudioMeta{atrack}
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
+}
+
+func Test_ValidateSrcDir(t *testing.T) {
+	meta, conf := harness()
+	conf.Mobile()
+	conf.DestDir = "/tmp"
+	meta.Title = "/home/beagle/a.mkv"
+	expected := "HandBrakeCLI -Z \"Universal\" -i /home/beagle/a.mkv -t1 -o /tmp/a.m4v"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)

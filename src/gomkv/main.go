@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 )
 
-var workingDir string
 var files []string
 
 var defaults = config.GomkvConfig{}
@@ -26,10 +25,6 @@ func init() {
 	var err error
 	var debuglvl = 0
 	mobile := false
-	workingDir, err = filepath.Abs(".")
-	if err != nil {
-		panic(err)
-	}
 	flag.StringVar(&defaults.Profile, "profile", config.DEFAULT_PROFILE, "Default Encoding Profile. Defaults to 'High Profile'")
 	flag.StringVar(&defaults.Prefix, "prefix", config.DEFAULT_PREFIX, "Default Prefix for output filename(s)")
 	flag.BoolVar(&defaults.Episodic, "series", false, "Videos are episodes of a series")
@@ -39,7 +34,30 @@ func init() {
 	flag.BoolVar(&mobile, "mobile", false, "Use mobile friendly settings")
 	flag.BoolVar(&defaults.EnableSubs, "subs", true, "Copy subtitles")
 	flag.IntVar(&debuglvl, "debug", 0, "Debug level 1..3")
+	flag.StringVar(&defaults.SrcDir, "source-dir", "", "directory containing video files. Defaults to current working directory.")
+	flag.StringVar(&defaults.DestDir, "dest-dir", "", "directory you want video files to be created")
 	flag.Parse()
+
+	workingDir := ""
+	if defaults.SrcDir == "" {
+		workingDir, err = filepath.Abs(".")
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		workingDir, err = validateDirectory(defaults.SrcDir)
+		if err != nil {
+			panic(err)
+		}
+	}
+	defaults.SrcDir = workingDir
+
+	if defaults.DestDir, err = validateDirectory(defaults.DestDir); err != nil {
+		panic(err)
+	}
+	if debug {
+		fmt.Printf("srcdir: %s destdir: %s", defaults.SrcDir, defaults.DestDir)
+	}
 
 	switch {
 	case debuglvl == DEBUG_LEVEL_BASIC:
@@ -61,21 +79,24 @@ func init() {
 }
 
 func main() {
-	workingDir = filepath.Clean(workingDir)
-	if debug {
-		fmt.Fprintln(os.Stderr, "Working Directory: "+workingDir)
+	if err := os.Chdir(defaults.SrcDir); err != nil {
+		panic(err)
 	}
-	mkv, err := filepath.Glob(workingDir + "/*.mkv")
+
+	if debug {
+		fmt.Fprintln(os.Stderr, "Working Directory: "+defaults.SrcDir)
+	}
+	mkv, err := filepath.Glob(defaults.SrcDir + "/*.mkv")
 	if err != nil {
 		panic(err)
 	}
-	m4v, err := filepath.Glob(workingDir + "/*.m4v")
+	m4v, err := filepath.Glob(defaults.SrcDir + "/*.m4v")
 	if err != nil {
 		panic(err)
 	}
 	files = append(mkv, m4v...)
 	if len(files) == 0 {
-		fmt.Fprintf(os.Stderr, "No mkv/m4v files found in path. Exiting.\n")
+		fmt.Fprintf(os.Stderr, "No mkv/m4v files found in %s. Exiting.\n", defaults.SrcDir)
 		os.Exit(1)
 	}
 	for _, file := range files {
