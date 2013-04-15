@@ -3,6 +3,8 @@ gomkv automating the tedious parts of Transcoding
 
 gomkv is the result of my having encoded lots of lots of video using HandBrakeCLI. Nothing gomkv does is hard or complicated, it just takes my preferences and makes them the default while automating one of the most tedious aspects of converting mkvs, parsing the output of ```-t0```
 
+The output is an executable shell script which you can then run in batch.
+
 gomkv is not the simplest way to do this. I also wanted to play more with golang and ragel. I use ragel to parse the output of t0 as a simple state machine. I could have done this with regex but that would have been too easy and I wouldn't have learned very much.
 
 Requires Ragel v6.8.
@@ -48,4 +50,17 @@ Examples
 4. Japanese Then English:
 
 		gomkv --source-dir=/my/videos --dest-dir=/tmp --languages="Japanese,English"
+
+Example output:
+---------------
+
+		gomkv --source-dir /my/videos --languages="Japanese,English" --prefix SF --series --episode=8
+
+
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title00.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E08.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title01.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E09.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title02.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E10.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title03.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E11.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title04.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E12.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title05.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E13.mkv
 
