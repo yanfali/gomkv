@@ -1,5 +1,9 @@
 package config
 
+import (
+	"strings"
+)
+
 const (
 	DEFAULT_PROFILE = "High Profile"
 	DEFAULT_PREFIX  = ""
@@ -17,7 +21,14 @@ type GomkvConfig struct {
 	SrcDir        string
 	DestDir       string
 	Languages     string
-	LanguageOrder map[string] int
+}
+
+func (g *GomkvConfig) LanguageOrderMap() map[string] int {
+	langOrder := map[string] int{}
+	for i, language := range strings.Split(g.Languages, ",") {
+		langOrder[language] = i
+	}
+	return langOrder
 }
 
 func (g *GomkvConfig) Mobile() *GomkvConfig {

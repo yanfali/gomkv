@@ -243,7 +243,6 @@ func Test_ValidateAudio2TracksInEnglishOneInJapanese(t *testing.T) {
 	conf.Profile = "Universal"
 	meta.Title = "a.mkv"
 	conf.Languages = "Japanese,English"
-	conf.LanguageOrder = map[string] int{"Japanese": 0, "English": 1}
 	atrack := AudioMeta{"English", "DTS", "5.1", 48000, 256000, 1}
 	btrack := AudioMeta{"Japanese", "AC3", "2.1", 48000, 192000, 2}
 	ctrack := AudioMeta{"English", "AC3", "2.1", 48000, 192000, 3}

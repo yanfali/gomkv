@@ -8,7 +8,6 @@ import (
 	"gomkv/handbrake"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 var files []string
@@ -53,13 +52,6 @@ func init() {
 		}
 	}
 	defaults.SrcDir = workingDir
-
-	if defaults.Languages != "" {
-		for i, language := range strings.Split(defaults.Languages, ",") {
-			fmt.Println(language)
-			defaults.LanguageOrder[language] = i
-		}
-	}
 
 	if defaults.DestDir, err = validateDirectory(defaults.DestDir); err != nil {
 		panic(err)
