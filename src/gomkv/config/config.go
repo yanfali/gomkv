@@ -16,6 +16,8 @@ type GomkvConfig struct {
 	EnableSubs    bool
 	SrcDir        string
 	DestDir       string
+	Languages     string
+	LanguageOrder map[string] int
 }
 
 func (g *GomkvConfig) Mobile() *GomkvConfig {

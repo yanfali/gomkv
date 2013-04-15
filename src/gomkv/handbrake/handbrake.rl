@@ -75,6 +75,7 @@ func ParseOutput(data string) HandBrakeMeta {
 				addAudioMeta(&meta)
 				audio := getLastAudioMeta(&meta)
 				audio.Language = data[ts:te]
+				audio.Index = len(meta.Audio)
 				debug("a-%s:", audio.Language)
 			};
 			space;

@@ -8,6 +8,7 @@ import (
 	"gomkv/handbrake"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var files []string
@@ -36,6 +37,7 @@ func init() {
 	flag.IntVar(&debuglvl, "debug", 0, "Debug level 1..3")
 	flag.StringVar(&defaults.SrcDir, "source-dir", "", "directory containing video files. Defaults to current working directory.")
 	flag.StringVar(&defaults.DestDir, "dest-dir", "", "directory you want video files to be created")
+	flag.StringVar(&defaults.Languages, "languages", "", "list of languages and order to copy, comma separated e.g. English,Japanese")
 	flag.Parse()
 
 	workingDir := ""
@@ -51,6 +53,13 @@ func init() {
 		}
 	}
 	defaults.SrcDir = workingDir
+
+	if defaults.Languages != "" {
+		for i, language := range strings.Split(defaults.Languages, ",") {
+			fmt.Println(language)
+			defaults.LanguageOrder[language] = i
+		}
+	}
 
 	if defaults.DestDir, err = validateDirectory(defaults.DestDir); err != nil {
 		panic(err)

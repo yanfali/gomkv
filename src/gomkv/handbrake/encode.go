@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sort"
 )
 
 const (
@@ -38,19 +39,26 @@ func addSubtitleOpts(buf *bytes.Buffer, subtitlemeta []SubtitleMeta) error {
 	return nil
 }
 
-func addAudioOpts(buf *bytes.Buffer, audiometa []AudioMeta, aacOnly bool) error {
-	if len(audiometa) == 0 {
-		return nil
+func isCopyLanguage(lang string, config *config.GomkvConfig) bool {
+	if config.Languages == "" && lang == "English" {
+		return true
 	}
+	if strings.Contains(config.Languages, lang) {
+		return true
+	}
+	return false
+}
+
+func addAudioOpts(buf *bytes.Buffer, audiometas AudioMetas, config *config.GomkvConfig) error {
 	audioTracks := []int{}
 	audioOptions := []string{}
-	for i, audio := range audiometa {
-		if audio.Language == "English" {
-			audioTracks = append(audioTracks, i+1)
+	for _, audio := range audiometas {
+		if isCopyLanguage(audio.Language, config) {
+			audioTracks = append(audioTracks, audio.Index)
 		} else {
 			continue
 		}
-		if aacOnly {
+		if config.AacOnly {
 			audioOptions = append(audioOptions, "faac")
 			continue
 		}
@@ -124,7 +132,17 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 		}
 	}
 
-	addAudioOpts(buf, meta.Audio, config.AacOnly)
+	if len(meta.Audio) > 0 {
+		audiometas := AudioMetas{}
+		for i, _ := range meta.Audio {
+			audiometas = append(audiometas, &meta.Audio[i])
+		}
+		if config.Languages != "" {
+			sort.Sort(ByLanguage{audiometas, config.LanguageOrder})
+		}
+		addAudioOpts(buf, audiometas, config)
+	}
+
 	if config.EnableSubs {
 		addSubtitleOpts(buf, meta.Subtitle)
 	}
