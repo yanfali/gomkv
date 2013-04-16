@@ -52,6 +52,6 @@ type HandBrakeMeta struct {
 	Aspect      string
 	Fps         string
 	Autocrop    string
-	Audio       []AudioMeta
+	Audio       AudioMetas
 	Subtitle    []SubtitleMeta
 }

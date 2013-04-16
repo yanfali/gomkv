@@ -45,7 +45,7 @@ func getLastAudioMeta(meta *HandBrakeMeta) *AudioMeta {
 	if len(meta.Audio) == 0 {
 		panic("No audio available!")
 	}
-	return &meta.Audio[len(meta.Audio)-1]
+	return meta.Audio[len(meta.Audio)-1]
 }
 
 func getLastSubtitleMeta(meta *HandBrakeMeta) *SubtitleMeta {
@@ -64,8 +64,7 @@ func debug(format string, args ...interface{}) {
 }
 
 func addAudioMeta(meta *HandBrakeMeta) {
-	audio := AudioMeta{}
-	meta.Audio = append(meta.Audio, audio)
+	meta.Audio = append(meta.Audio, &AudioMeta{})
 }
 
 func addSubtitleMeta(meta *HandBrakeMeta) {

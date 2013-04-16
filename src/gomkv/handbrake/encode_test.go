@@ -157,8 +157,8 @@ func Test_ValidateBasicAudio(t *testing.T) {
 	meta, conf := harness()
 	conf.Profile = "Universal"
 	meta.Title = "a.mkv"
-	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000, 1}
-	meta.Audio = []AudioMeta{atrack}
+	atrack := &AudioMeta{"English", "AC3", "5.1", 48000, 256000, 1}
+	meta.Audio = AudioMetas{atrack}
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1 -E copy:ac3 -o a.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -170,8 +170,8 @@ func Test_ValidateBasicAudioAacOnly(t *testing.T) {
 	conf.Profile = "Universal"
 	conf.AacOnly = true
 	meta.Title = "a.mkv"
-	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000, 1}
-	meta.Audio = []AudioMeta{atrack}
+	atrack := &AudioMeta{"English", "AC3", "5.1", 48000, 256000, 1}
+	meta.Audio = AudioMetas{atrack}
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1 -E faac -o a.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -193,8 +193,8 @@ func Test_ValidateMobileWithAudio(t *testing.T) {
 	conf.Mobile()
 	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1 -E faac -o a.m4v"
-	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000, 1}
-	meta.Audio = []AudioMeta{atrack}
+	atrack := &AudioMeta{"English", "AC3", "5.1", 48000, 256000, 1}
+	meta.Audio = AudioMetas{atrack}
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
@@ -215,9 +215,9 @@ func Test_ValidateAudio2TracksInEnglish(t *testing.T) {
 	meta, conf := harness()
 	conf.Profile = "Universal"
 	meta.Title = "a.mkv"
-	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000, 1}
-	btrack := AudioMeta{"English", "AC3", "2.1", 48000, 192000, 2}
-	meta.Audio = []AudioMeta{atrack, btrack}
+	atrack := &AudioMeta{"English", "AC3", "5.1", 48000, 256000, 1}
+	btrack := &AudioMeta{"English", "AC3", "2.1", 48000, 192000, 2}
+	meta.Audio = AudioMetas{atrack, btrack}
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1,2 -E copy:ac3,copy:ac3 -o a.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -228,10 +228,10 @@ func Test_ValidateAudio2TracksInEnglishOneInFrench(t *testing.T) {
 	meta, conf := harness()
 	conf.Profile = "Universal"
 	meta.Title = "a.mkv"
-	atrack := AudioMeta{"English", "AC3", "5.1", 48000, 256000, 1}
-	btrack := AudioMeta{"French", "AC3", "2.1", 48000, 192000, 2}
-	ctrack := AudioMeta{"English", "AC3", "2.1", 48000, 192000, 3}
-	meta.Audio = []AudioMeta{atrack, btrack, ctrack}
+	atrack := &AudioMeta{"English", "AC3", "5.1", 48000, 256000, 1}
+	btrack := &AudioMeta{"French", "AC3", "2.1", 48000, 192000, 2}
+	ctrack := &AudioMeta{"English", "AC3", "2.1", 48000, 192000, 3}
+	meta.Audio = AudioMetas{atrack, btrack, ctrack}
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1,3 -E copy:ac3,copy:ac3 -o a.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -243,10 +243,10 @@ func Test_ValidateAudio2TracksInEnglishOneInJapanese(t *testing.T) {
 	conf.Profile = "Universal"
 	meta.Title = "a.mkv"
 	conf.Languages = "Japanese,English"
-	atrack := AudioMeta{"English", "DTS", "5.1", 48000, 256000, 1}
-	btrack := AudioMeta{"Japanese", "AC3", "2.1", 48000, 192000, 2}
-	ctrack := AudioMeta{"English", "AC3", "2.1", 48000, 192000, 3}
-	meta.Audio = []AudioMeta{atrack, btrack, ctrack}
+	atrack := &AudioMeta{"English", "DTS", "5.1", 48000, 256000, 1}
+	btrack := &AudioMeta{"Japanese", "AC3", "2.1", 48000, 192000, 2}
+	ctrack := &AudioMeta{"English", "AC3", "2.1", 48000, 192000, 3}
+	meta.Audio = AudioMetas{atrack, btrack, ctrack}
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a2,1,3 -E copy:ac3,copy:dts,copy:ac3 -o a.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)

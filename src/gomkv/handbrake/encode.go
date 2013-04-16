@@ -133,14 +133,10 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 	}
 
 	if len(meta.Audio) > 0 {
-		audiometas := AudioMetas{}
-		for i, _ := range meta.Audio {
-			audiometas = append(audiometas, &meta.Audio[i])
-		}
 		if config.Languages != "" {
-			sort.Sort(ByLanguage{audiometas, config.LanguageOrderMap()})
+			sort.Sort(ByLanguage{meta.Audio, config.LanguageOrderMap()})
 		}
-		addAudioOpts(buf, audiometas, config)
+		addAudioOpts(buf, meta.Audio, config)
 	}
 
 	if config.EnableSubs {
