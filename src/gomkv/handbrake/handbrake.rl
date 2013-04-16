@@ -8,7 +8,6 @@ import (
 	machine handbrake;
 	write data;
 }%%
-
 func ParseOutput(data string) HandBrakeMeta {
 	cs, p, pe, eof := 0, 0, len(data), 0
 	top, ts, te, act := 0,0,0,0
@@ -80,7 +79,7 @@ func ParseOutput(data string) HandBrakeMeta {
 			};
 			space;
 # Codec
-			"(" ("AC3" | "DTS" ) ")" => {
+			"(" ("AC3" | "DTS" | "pcm_s24le" | "aac" ) ")" => {
 				audio := getLastAudioMeta(&meta)
 				audio.Codec = data[ts+1:te-1]
 				debug("b-%s:", audio.Codec);
@@ -94,7 +93,14 @@ func ParseOutput(data string) HandBrakeMeta {
 				debug("c-%s:", audio.Channels)
 			};
 # Ignore this bit
-			"(iso" digit{3} "-" digit ":" space lower{3} "),";
+			(
+			"(iso" digit{3} "-" digit ":" space lower{3} ")" |
+			"(iso" digit{3} "-" digit ":" space lower{3} "),"
+			) => {
+				if data[te] == '\n' {
+					fret;
+				}
+			};
 # Hertz
 			space;
 			digit+ "Hz," => {

@@ -67,6 +67,10 @@ func addAudioOpts(buf *bytes.Buffer, audiometas AudioMetas, config *config.Gomkv
 			audioOptions = append(audioOptions, "copy:ac3")
 		case "DTS":
 			audioOptions = append(audioOptions, "copy:dts")
+		case "aac":
+			audioOptions = append(audioOptions, "copy:aac")
+		case "pcm_s24le":
+			audioOptions = append(audioOptions, "ffac3")
 		}
 	}
 	tracks := []string{}
