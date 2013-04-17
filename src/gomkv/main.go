@@ -79,6 +79,19 @@ func init() {
 	}
 }
 
+func processOne(file string) {
+	std, err := exec.Command("HandBrakeCLI", "-t0", "-i", file)
+	if err != nil {
+		panic(err)
+	}
+	meta := handbrake.ParseOutput(std.Err)
+	if debug {
+		fmt.Fprintln(os.Stderr, meta)
+	}
+	result, err := handbrake.FormatCLIOutput(meta, &defaults)
+	fmt.Println(result)
+}
+
 func main() {
 	if err := os.Chdir(defaults.SrcDir); err != nil {
 		panic(err)
@@ -101,15 +114,6 @@ func main() {
 		os.Exit(1)
 	}
 	for _, file := range files {
-		std, err := exec.Command("HandBrakeCLI", "-t0", "-i", file)
-		if err != nil {
-			panic(err)
-		}
-		meta := handbrake.ParseOutput(std.Err)
-		if debug {
-			fmt.Fprintln(os.Stderr, meta)
-		}
-		result, err := handbrake.FormatCLIOutput(meta, &defaults)
-		fmt.Println(result)
+		processOne(file)
 	}
 }
