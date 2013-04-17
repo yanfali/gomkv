@@ -148,10 +148,13 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 	}
 
 	if config.DestDir != "" {
-		fmt.Fprintf(buf, " -o %s%c%s", config.DestDir, os.PathSeparator, output)
-	} else {
-		fmt.Fprintf(buf, " -o %s", output)
+		output = fmt.Sprintf("%s%c%s", config.DestDir, os.PathSeparator, output)
 	}
+	if output == title {
+		index := strings.LastIndex(output, ".")
+		output = output[:index] + "_new" + output[index:]
+	}
+	fmt.Fprintf(buf, " -o %s", output)
 
 	return buf.String(), nil
 }
