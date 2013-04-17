@@ -150,6 +150,7 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 	if config.DestDir != "" {
 		output = fmt.Sprintf("%s%c%s", config.DestDir, os.PathSeparator, output)
 	}
+	output = strings.Replace(output, " ", "\\ ", -1)
 	if output == title {
 		index := strings.LastIndex(output, ".")
 		output = output[:index] + "_new" + output[index:]

@@ -81,9 +81,17 @@ func Test_ValidateTitleSpaceEscaped(t *testing.T) {
 	}
 }
 
+func Test_ValidateDestPathEscaped(t *testing.T) {
+	meta, conf := harness()
+	conf.DestDir = "/home/yanfali/My Video"
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o /home/yanfali/My\\ Video/a.mkv"
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
+}
+
 func Test_ValidateBasicEncoding(t *testing.T) {
 	meta, conf := harness()
-	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o a_new.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -93,7 +101,6 @@ func Test_ValidateBasicEncoding(t *testing.T) {
 func Test_ValidateFormatM4v(t *testing.T) {
 	meta, conf := harness()
 	conf.M4v = true
-	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o a.m4v"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -103,7 +110,6 @@ func Test_ValidateFormatM4v(t *testing.T) {
 func Test_ValidatePrefix(t *testing.T) {
 	meta, conf := harness()
 	conf.Prefix = "b"
-	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o b.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -114,7 +120,6 @@ func Test_ValidateEpisodes(t *testing.T) {
 	meta, conf := harness()
 	conf.Prefix = "b"
 	conf.Episodic = true
-	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o b_S0E00.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -126,7 +131,6 @@ func Test_ValidateSeasonOffset(t *testing.T) {
 	conf.Prefix = "b"
 	conf.Episodic = true
 	conf.SeasonOffset = 3
-	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o b_S3E00.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -138,7 +142,6 @@ func Test_ValidateEpisodeOffset(t *testing.T) {
 	conf.Prefix = "b"
 	conf.Episodic = true
 	conf.EpisodeOffset = 15
-	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o b_S0E15.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -147,7 +150,6 @@ func Test_ValidateEpisodeOffset(t *testing.T) {
 
 func Test_ValidateBasicAudio(t *testing.T) {
 	meta, conf := harness()
-	meta.Title = "a.mkv"
 	atrack := &AudioMeta{Language: "English", Codec: "AC3", Index: 1}
 	meta.Audio = AudioMetas{atrack}
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1 -E copy:ac3 -o a_new.mkv"
@@ -159,7 +161,6 @@ func Test_ValidateBasicAudio(t *testing.T) {
 func Test_ValidateBasicAudioAacOnly(t *testing.T) {
 	meta, conf := harness()
 	conf.AacOnly = true
-	meta.Title = "a.mkv"
 	atrack := &AudioMeta{Language: "English", Codec: "AC3", Index: 1}
 	meta.Audio = AudioMetas{atrack}
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1 -E faac -o a_new.mkv"
@@ -171,7 +172,6 @@ func Test_ValidateBasicAudioAacOnly(t *testing.T) {
 func Test_ValidateMobile(t *testing.T) {
 	meta, conf := harness()
 	conf.Mobile()
-	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -o a.m4v"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutput(meta, &conf)
@@ -181,7 +181,6 @@ func Test_ValidateMobile(t *testing.T) {
 func Test_ValidateMobileWithAudio(t *testing.T) {
 	meta, conf := harness()
 	conf.Mobile()
-	meta.Title = "a.mkv"
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a1 -E faac -o a.m4v"
 	atrack := &AudioMeta{Language: "English", Codec: "AC3", Index: 1}
 	meta.Audio = AudioMetas{atrack}
@@ -203,7 +202,6 @@ func Test_ValidateSrcDir(t *testing.T) {
 
 func Test_ValidateAudio2TracksInEnglish(t *testing.T) {
 	meta, conf := harness()
-	meta.Title = "a.mkv"
 	atrack := &AudioMeta{Language: "English", Codec: "AC3", Index: 1}
 	btrack := &AudioMeta{Language: "English", Codec: "AC3", Index: 2}
 	meta.Audio = AudioMetas{atrack, btrack}
@@ -215,7 +213,6 @@ func Test_ValidateAudio2TracksInEnglish(t *testing.T) {
 
 func Test_ValidateAudio2TracksInEnglishOneInFrench(t *testing.T) {
 	meta, conf := harness()
-	meta.Title = "a.mkv"
 	atrack := &AudioMeta{Language: "English", Codec: "AC3", Index: 1}
 	btrack := &AudioMeta{Language: "French", Codec: "AC3", Index: 2}
 	ctrack := &AudioMeta{Language: "English", Codec: "AC3", Index: 3}
