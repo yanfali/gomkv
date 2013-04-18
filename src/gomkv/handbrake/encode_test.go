@@ -235,3 +235,30 @@ func Test_ValidateAudio2TracksInEnglishOneInJapanese(t *testing.T) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
 }
+
+func Test_ValidateSubtitleWithLangugageOption(t *testing.T) {
+	meta, conf := harness()
+	conf.Languages = "Japanese,English"
+	conf.EnableSubs = true
+	asub := SubtitleMeta{Language: "English"}
+	bsub := SubtitleMeta{Language: "Japanese"}
+	csub := SubtitleMeta{Language: "English"}
+	meta.Subtitle = []SubtitleMeta{asub, bsub, csub}
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -s 1,2,3 -o a_new.mkv"
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
+}
+
+func Test_ValidateSubtitleDefault(t *testing.T) {
+	meta, conf := harness()
+	conf.EnableSubs = true
+	asub := SubtitleMeta{Language: "English"}
+	bsub := SubtitleMeta{Language: "Japanese"}
+	csub := SubtitleMeta{Language: "English"}
+	meta.Subtitle = []SubtitleMeta{asub, bsub, csub}
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -s 1,3 -o a_new.mkv"
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
+}

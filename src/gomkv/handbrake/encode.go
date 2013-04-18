@@ -21,13 +21,13 @@ const (
 	COPY_AAC = "copy:aac"
 )
 
-func addSubtitleOpts(buf *bytes.Buffer, subtitlemeta []SubtitleMeta) error {
+func addSubtitleOpts(buf *bytes.Buffer, subtitlemeta []SubtitleMeta, config *config.GomkvConfig) error {
 	if len(subtitlemeta) == 0 {
 		return nil
 	}
 	subs := []int{}
 	for i, subtitle := range subtitlemeta {
-		if subtitle.Language == "English" {
+		if isCopyLanguage(subtitle.Language, config) {
 			subs = append(subs, i+1)
 		} else {
 			continue
@@ -151,7 +151,7 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 	}
 
 	if config.EnableSubs {
-		addSubtitleOpts(buf, meta.Subtitle)
+		addSubtitleOpts(buf, meta.Subtitle, config)
 	}
 
 	if config.DestDir != "" {
