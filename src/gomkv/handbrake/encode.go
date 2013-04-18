@@ -14,6 +14,11 @@ import (
 
 const (
 	CLI = "HandBrakeCLI"
+	ENCODE_FAAC = "faac"
+	ENCODE_AC3 = "ffac3"
+	COPY_AC3 = "copy:ac3"
+	COPY_DTS = "copy:dts"
+	COPY_AAC = "copy:aac"
 )
 
 func addSubtitleOpts(buf *bytes.Buffer, subtitlemeta []SubtitleMeta) error {
@@ -59,19 +64,21 @@ func addAudioOpts(buf *bytes.Buffer, audiometas AudioMetas, config *config.Gomkv
 			continue
 		}
 		if config.AacOnly {
-			audioOptions = append(audioOptions, "faac")
+			audioOptions = append(audioOptions, ENCODE_FAAC)
 			continue
 		}
+		encoder := ""
 		switch audio.Codec {
 		case "AC3":
-			audioOptions = append(audioOptions, "copy:ac3")
+			encoder = COPY_AC3
 		case "DTS":
-			audioOptions = append(audioOptions, "copy:dts")
+			encoder = COPY_DTS
 		case "aac":
-			audioOptions = append(audioOptions, "copy:aac")
-		case "pcm_s24le":
-			audioOptions = append(audioOptions, "ffac3")
+			encoder = COPY_AAC
+		default:
+			encoder = ENCODE_AC3
 		}
+		audioOptions = append(audioOptions, encoder)
 	}
 	tracks := []string{}
 	for _, track := range audioTracks {
