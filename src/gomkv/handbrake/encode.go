@@ -7,18 +7,18 @@ import (
 	"gomkv/config"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
-	"sort"
 )
 
 const (
-	CLI = "HandBrakeCLI"
+	CLI         = "HandBrakeCLI"
 	ENCODE_FAAC = "faac"
-	ENCODE_AC3 = "ffac3"
-	COPY_AC3 = "copy:ac3"
-	COPY_DTS = "copy:dts"
-	COPY_AAC = "copy:aac"
+	ENCODE_AC3  = "ffac3"
+	COPY_AC3    = "copy:ac3"
+	COPY_DTS    = "copy:dts"
+	COPY_AAC    = "copy:aac"
 )
 
 func addSubtitleOpts(buf *bytes.Buffer, subtitlemeta []SubtitleMeta, config *config.GomkvConfig) error {

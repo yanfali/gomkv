@@ -87,9 +87,13 @@ func ParseOutput(data string) HandBrakeMeta {
 
 			space;
 # Channels
-			"(" digit . "." . digit space "ch)" space => {
+			"(" ( digit . "." . digit space "ch" | "Dolby Surround" ) ")" space => {
 				audio := getLastAudioMeta(&meta)
-				audio.Channels = data[ts+1:te-5]
+				skip_chars := 2
+				if data[te-4:te-2] == "ch" {
+					skip_chars = 5
+				}
+				audio.Channels = data[ts+1:te-skip_chars]
 				debug("c-%s:", audio.Channels)
 			};
 # Ignore this bit

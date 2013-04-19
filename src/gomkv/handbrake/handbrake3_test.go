@@ -31,9 +31,9 @@ func Test_parseTitleOddAudio(t *testing.T) {
 func Test_parseTitleOddAudioTracks(t *testing.T) {
 	audio := meta3.Audio
 	if audio[0].Language == "Japanese" &&
-	audio[0].Codec == "pcm_s24le" &&
-	audio[1].Language == "English" &&
-	audio[1].Codec == "AC3" {
+		audio[0].Codec == "pcm_s24le" &&
+		audio[1].Language == "English" &&
+		audio[1].Codec == "AC3" {
 		t.Log("ok")
 	} else {
 		t.Errorf("Not parsed correctly", audio[0], audio[1])

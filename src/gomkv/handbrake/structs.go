@@ -20,11 +20,11 @@ func (a AudioMetas) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 
 type ByLanguage struct {
 	AudioMetas
-	Order map[string] int
+	Order map[string]int
 }
 
 func (a ByLanguage) GetOrder(key string) int {
-	val, ok := a.Order[key];
+	val, ok := a.Order[key]
 	if ok {
 		return val
 	}

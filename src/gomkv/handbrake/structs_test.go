@@ -42,9 +42,9 @@ func Test_sortSplitSoundtracks(t *testing.T) {
 	metas := AudioMetas{&atrack, &btrack, &ctrack, &dtrack}
 	sort.Sort(ByLanguage{metas, order})
 	if metas[0].Language == "Spanish" &&
-	   metas[1].Language == "English" &&
-	   metas[2].Language == "English" &&
-	   metas[2].Channels == "2.1" {
+		metas[1].Language == "English" &&
+		metas[2].Language == "English" &&
+		metas[2].Channels == "2.1" {
 		t.Log("ok")
 	} else {
 		t.Errorf("wrong order %s", metas)
