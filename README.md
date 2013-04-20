@@ -19,7 +19,7 @@ Building
 Usage
 -----
 	gomkv
-  		-aac=false: Encode audio using aac, instead of copying
+		-aac=false: Encode audio using aac, instead of copying
 		-debug=0: Debug level 1..3
 		-dest-dir="": directory you want video files to be created
 		-episode=1: Episode starting offset.
@@ -31,6 +31,8 @@ Usage
 		-series=false: Videos are episodes of a series
 		-source-dir="": directory containing video files. Defaults to current working directory.
 		-subs=true: Copy subtitles
+		-subtitle-default="": Enable subtitles by default for the language matching this value. e.g. -subtitle-default=English
+	
 
 Examples
 --------
