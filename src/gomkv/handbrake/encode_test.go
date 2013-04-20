@@ -262,3 +262,67 @@ func Test_ValidateSubtitleDefault(t *testing.T) {
 		return FormatCLIOutput(meta, &conf)
 	}, t, expected)
 }
+
+func Test_DefaultSubtitle(t *testing.T) {
+	meta, conf := harness()
+	conf.EnableSubs = true
+	conf.DefaultSub = "English"
+	asub := SubtitleMeta{Language: "English"}
+	bsub := SubtitleMeta{Language: "Japanese"}
+	csub := SubtitleMeta{Language: "English"}
+	meta.Subtitle = []SubtitleMeta{asub, bsub, csub}
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -s 1,3 --subtitle-default 1 -o a_new.mkv"
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
+}
+
+func Test_DefaultSubtitleJapaneseWithNoLanguage(t *testing.T) {
+	meta, conf := harness()
+	conf.EnableSubs = true
+	conf.DefaultSub = "Japanese"
+	asub := SubtitleMeta{Language: "English"}
+	bsub := SubtitleMeta{Language: "Japanese"}
+	csub := SubtitleMeta{Language: "English"}
+	meta.Subtitle = []SubtitleMeta{asub, bsub, csub}
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -s 1,3 -o a_new.mkv"
+
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
+}
+
+func Test_DefaultSubtitleJapaneseWithLanguage(t *testing.T) {
+	meta, conf := harness()
+	conf.EnableSubs = true
+	conf.DefaultSub = "Japanese"
+	conf.Languages = "Japanese,English"
+	asub := SubtitleMeta{Language: "English"}
+	bsub := SubtitleMeta{Language: "Japanese"}
+	csub := SubtitleMeta{Language: "English"}
+	meta.Subtitle = []SubtitleMeta{asub, bsub, csub}
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -s 1,2,3 --subtitle-default 2 -o a_new.mkv"
+
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
+}
+
+func Test_DefaultSubtitleJapaneseWithLanguageAndAudio(t *testing.T) {
+	meta, conf := harness()
+	conf.EnableSubs = true
+	conf.DefaultSub = "Japanese"
+	conf.Languages = "Japanese,English"
+	asub := SubtitleMeta{Language: "English"}
+	bsub := SubtitleMeta{Language: "Japanese"}
+	csub := SubtitleMeta{Language: "English"}
+	meta.Subtitle = []SubtitleMeta{asub, bsub, csub}
+	atrack := &AudioMeta{Language: "English", Codec: "AC3", Index: 1}
+	btrack := &AudioMeta{Language: "Japanese", Codec: "AC3", Index: 2}
+	meta.Audio = AudioMetas{atrack, btrack}
+	expected := "HandBrakeCLI -Z \"Universal\" -i a.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2,3 --subtitle-default 2 -o a_new.mkv"
+
+	equals_harness(func() (string, error) {
+		return FormatCLIOutput(meta, &conf)
+	}, t, expected)
+}

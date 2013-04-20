@@ -37,6 +37,7 @@ func init() {
 	flag.StringVar(&defaults.SrcDir, "source-dir", "", "directory containing video files. Defaults to current working directory.")
 	flag.StringVar(&defaults.DestDir, "dest-dir", "", "directory you want video files to be created")
 	flag.StringVar(&defaults.Languages, "languages", "", "list of languages and order to copy, comma separated e.g. English,Japanese")
+	flag.StringVar(&defaults.DefaultSub, "subtitle-default", "", "Enable subtitles by default for the language matching this value. e.g. -subtitle-default=English")
 	flag.Parse()
 
 	workingDir := ""

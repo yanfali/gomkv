@@ -21,6 +21,7 @@ type GomkvConfig struct {
 	SrcDir        string
 	DestDir       string
 	Languages     string
+	DefaultSub    string
 }
 
 func (g *GomkvConfig) LanguageOrderMap() map[string] int {

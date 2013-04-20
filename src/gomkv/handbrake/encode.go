@@ -25,10 +25,16 @@ func addSubtitleOpts(buf *bytes.Buffer, subtitlemeta []SubtitleMeta, config *con
 	if len(subtitlemeta) == 0 {
 		return nil
 	}
+
 	subs := []int{}
+	subdef := 0
 	for i, subtitle := range subtitlemeta {
 		if isCopyLanguage(subtitle.Language, config) {
 			subs = append(subs, i+1)
+			if subdef == 0 && config.DefaultSub == subtitle.Language {
+				subdef = subs[i]
+			}
+
 		} else {
 			continue
 		}
@@ -40,6 +46,9 @@ func addSubtitleOpts(buf *bytes.Buffer, subtitlemeta []SubtitleMeta, config *con
 
 	if len(toCopy) > 0 {
 		fmt.Fprintf(buf, " -s %s", strings.Join(toCopy, ","))
+	}
+	if subdef > 0 {
+		fmt.Fprintf(buf, " --subtitle-default %s", strconv.Itoa(subdef))
 	}
 	return nil
 }
