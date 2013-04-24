@@ -7,7 +7,9 @@ import (
 	"gomkv/config"
 	"gomkv/handbrake"
 	"os"
+	"os/user"
 	"path/filepath"
+	toml "github.com/stvp/go-toml-config"
 )
 
 var files []string
@@ -25,7 +27,22 @@ func init() {
 	var err error
 	var debuglvl = 0
 	mobile := false
-	flag.StringVar(&defaults.Profile, "profile", config.DEFAULT_PROFILE, "Default Encoding Profile. Defaults to 'High Profile'")
+
+	if myuser, err := user.Current(); err != nil {
+		panic(err)
+	} else {
+		gomkvpath := myuser.HomeDir + "/.gomkvrc"
+		if _, err := os.Open(gomkvpath); err == nil {
+			if err := toml.Parse(myuser.HomeDir + "/.gomkvrc"); err != nil {
+				panic(err)
+			}
+			defaults.DestDir = *toml.String("dest-dir", "")
+			defaults.Languages = *toml.String("languages", "")
+			defaults.Profile = *toml.String("profile", "")
+		}
+	}
+
+	flag.StringVar(&defaults.Profile, "profile", defaults.Profile, "Default Encoding Profile. Defaults to 'High Profile'")
 	flag.StringVar(&defaults.Prefix, "prefix", config.DEFAULT_PREFIX, "Default Prefix for output filename(s)")
 	flag.BoolVar(&defaults.Episodic, "series", false, "Videos are episodes of a series")
 	flag.IntVar(&defaults.EpisodeOffset, "episode", 1, "Episode starting offset.")
@@ -35,8 +52,8 @@ func init() {
 	flag.BoolVar(&defaults.EnableSubs, "subs", true, "Copy subtitles")
 	flag.IntVar(&debuglvl, "debug", 0, "Debug level 1..3")
 	flag.StringVar(&defaults.SrcDir, "source-dir", "", "directory containing video files. Defaults to current working directory.")
-	flag.StringVar(&defaults.DestDir, "dest-dir", "", "directory you want video files to be created")
-	flag.StringVar(&defaults.Languages, "languages", "", "list of languages and order to copy, comma separated e.g. English,Japanese")
+	flag.StringVar(&defaults.DestDir, "dest-dir", defaults.DestDir, "directory you want video files to be created")
+	flag.StringVar(&defaults.Languages, "languages", defaults.Languages, "list of languages and order to copy, comma separated e.g. English,Japanese")
 	flag.StringVar(&defaults.DefaultSub, "subtitle-default", "", "Enable subtitles by default for the language matching this value. e.g. -subtitle-default=English")
 	flag.Parse()
 
