@@ -36,7 +36,7 @@ func Test_subTitleMissing(t *testing.T) {
 	if len(meta2.Subtitle) == 0 {
 		t.Log("ok")
 	} else {
-		t.Error("unexpected length of Subtitle %d", len(meta2.Subtitle))
+		t.Errorf("unexpected length of Subtitle %d", len(meta2.Subtitle))
 	}
 }
 
@@ -44,6 +44,6 @@ func Test_audioLength(t *testing.T) {
 	if len(meta2.Audio) == 1 {
 		t.Log("ok")
 	} else {
-		t.Error("unexpected length of Audio tracks %d", len(meta2.Audio))
+		t.Errorf("unexpected length of Audio tracks %d", len(meta2.Audio))
 	}
 }

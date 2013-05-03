@@ -145,6 +145,22 @@ func ParseOutput(data string) HandBrakeMeta {
 				fret;
 			};
 		*|;
+		achapter := |*
+			digit{1,2} ":" => {
+				addChapterMeta(&meta)
+				chapter := getLastChapterMeta(&meta)
+				chapter.Index = parseInt(data[ts:te-1])
+				debug("ch-%02d:", chapter.Index)
+			};
+			space;
+			"cells" space digit{1,3} "-" ">" digit{1,3} "," space digit{1,5} space "blocks" ",";
+			"duration" space digit{2} ":" digit{2} ":" digit{2} => {
+				chapter := getLastChapterMeta(&meta)
+				chapter.Duration = data[ts+9:te]
+				debug("%s", chapter.Duration)
+				fret;
+			};
+		*|;
 		word = [a-z]+;
 		prefix = space+ "+";
 		prefixsp = prefix space;
@@ -153,6 +169,7 @@ func ParseOutput(data string) HandBrakeMeta {
 		video = prefixsp "size:";
 		autocrop = prefixsp "autocrop:";
 		track = prefixsp digit "," space;
+		chapter = prefixsp digit{1,2} ":" space;
 		main := ( 
 			newline |
 			stream @{ fcall stitle; } |
@@ -162,6 +179,13 @@ func ParseOutput(data string) HandBrakeMeta {
 			prefixsp "chapters:" @{ section = CHAPTER; debug("chapter"); } |
 			prefixsp "audio tracks:" @{ section = AUDIO; debug("audio"); } |
 			prefixsp "subtitle tracks:" @{ section = SUBTITLE; debug("subtitle"); } |
+			prefixsp digit{1,2} ":" @{
+				if section == CHAPTER {
+					// reset p to space before digits
+					for p -= 2; data[p] == ' '; p -= 1 {}
+					fcall achapter;
+				}
+			} |
 			track @{
 				switch section {
 				case AUDIO:

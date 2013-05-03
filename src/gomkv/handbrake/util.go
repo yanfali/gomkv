@@ -55,6 +55,13 @@ func getLastSubtitleMeta(meta *HandBrakeMeta) *SubtitleMeta {
 	return &meta.Subtitle[len(meta.Subtitle)-1]
 }
 
+func getLastChapterMeta(meta *HandBrakeMeta) *ChapterMeta {
+	if len(meta.Chapter) == 0 {
+		panic("No subtitle available!")
+	}
+	return &meta.Chapter[len(meta.Chapter)-1]
+}
+
 var DebugEnabled bool = false
 
 func debug(format string, args ...interface{}) {
@@ -70,4 +77,8 @@ func addAudioMeta(meta *HandBrakeMeta) {
 func addSubtitleMeta(meta *HandBrakeMeta) {
 	subtitle := SubtitleMeta{}
 	meta.Subtitle = append(meta.Subtitle, subtitle)
+}
+
+func addChapterMeta(meta *HandBrakeMeta) {
+	meta.Chapter = append(meta.Chapter, ChapterMeta{})
 }

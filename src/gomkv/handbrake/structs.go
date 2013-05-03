@@ -4,6 +4,11 @@ import (
 	"math"
 )
 
+type ChapterMeta struct {
+	Index    int
+	Duration string
+}
+
 type AudioMeta struct {
 	Language  string
 	Codec     string
@@ -54,4 +59,5 @@ type HandBrakeMeta struct {
 	Autocrop    string
 	Audio       AudioMetas
 	Subtitle    []SubtitleMeta
+	Chapter     []ChapterMeta
 }
