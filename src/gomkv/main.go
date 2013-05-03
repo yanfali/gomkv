@@ -38,6 +38,7 @@ func init() {
 	flag.StringVar(&defaults.DestDir, "dest-dir", "", "directory you want video files to be created")
 	flag.StringVar(&defaults.Languages, "languages", "", "list of languages and order to copy, comma separated e.g. English,Japanese")
 	flag.StringVar(&defaults.DefaultSub, "subtitle-default", "", "Enable subtitles by default for the language matching this value. e.g. -subtitle-default=English")
+	flag.IntVar(&defaults.SplitFileEvery, "split-chapters", 0, "Create one file for every N chapters. Only works with --series. e.g. -split-chapters 5")
 	flag.Parse()
 
 	workingDir := ""
@@ -80,7 +81,7 @@ func init() {
 	}
 }
 
-func processOne(file string) {
+func processOne(session *config.GomkvSession, file string) {
 	std, err := exec.Command("HandBrakeCLI", "-t0", "-i", file)
 	if err != nil {
 		panic(err)
@@ -89,8 +90,17 @@ func processOne(file string) {
 	if debug {
 		fmt.Fprintln(os.Stderr, meta)
 	}
-	result, err := handbrake.FormatCLIOutput(meta, &defaults)
-	fmt.Println(result)
+	if defaults.Episodic && defaults.SplitFileEvery > 0 {
+		session.Chapter = 1
+	}
+
+	results, err := handbrake.FormatCLIOutput(meta, &defaults, session)
+	if err != nil {
+		panic(err)
+	}
+	for _, result := range results {
+		fmt.Println(result)
+	}
 }
 
 func main() {
@@ -114,7 +124,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "No mkv/m4v files found in %s. Exiting.\n", defaults.SrcDir)
 		os.Exit(1)
 	}
+	session := &config.GomkvSession{Episode: defaults.EpisodeOffset}
 	for _, file := range files {
-		processOne(file)
+		processOne(session, file)
 	}
 }

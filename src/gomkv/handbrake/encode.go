@@ -114,7 +114,28 @@ func validateConfig(meta HandBrakeMeta, config *config.GomkvConfig) error {
 	return nil
 }
 
-func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, error) {
+func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig, session *config.GomkvSession) ([]string, error) {
+	results := []string{}
+	for {
+		result, err := FormatCLIOutputEntry(meta, config, session)
+		if err != nil {
+			return results, err
+		}
+		results = append(results, result)
+		if session.Chapter == 0 {
+			// normal
+			return results, nil
+		}
+		// split original into chapter groups until you run out of chapters
+		session.Chapter += config.SplitFileEvery
+		chpEnd := session.Chapter + config.SplitFileEvery - 1
+		if chpEnd > len(meta.Chapter) {
+			return results, nil
+		}
+	}
+}
+
+func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, session *config.GomkvSession) (string, error) {
 	if err := validateConfig(meta, config); err != nil {
 		return "", err
 	}
@@ -145,8 +166,14 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig) (string, er
 		}
 	} else {
 		if config.Episodic {
-			output = fmt.Sprintf("%s_S%dE%02d%s", config.Prefix, config.SeasonOffset, config.EpisodeOffset, format)
-			config.EpisodeOffset++
+			output = fmt.Sprintf("%s_S%dE%02d%s", config.Prefix, config.SeasonOffset, session.Episode, format)
+			session.Episode += 1
+			if session.Chapter > 0 {
+				end := session.Chapter + config.SplitFileEvery - 1
+				if (len(meta.Chapter)) >= end {
+					fmt.Fprintf(buf, " -c%d-%d", session.Chapter, session.Chapter+config.SplitFileEvery-1)
+				}
+			}
 		} else {
 			output = config.Prefix + format
 		}

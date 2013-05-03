@@ -9,23 +9,29 @@ const (
 	DEFAULT_PREFIX  = ""
 )
 
-type GomkvConfig struct {
-	Profile       string
-	Prefix        string
-	EpisodeOffset int
-	SeasonOffset  int
-	Episodic      bool
-	AacOnly       bool
-	M4v           bool
-	EnableSubs    bool
-	SrcDir        string
-	DestDir       string
-	Languages     string
-	DefaultSub    string
+type GomkvSession struct {
+	Episode int
+	Chapter int
 }
 
-func (g *GomkvConfig) LanguageOrderMap() map[string] int {
-	langOrder := map[string] int{}
+type GomkvConfig struct {
+	Profile        string
+	Prefix         string
+	EpisodeOffset  int
+	SeasonOffset   int
+	Episodic       bool
+	AacOnly        bool
+	M4v            bool
+	EnableSubs     bool
+	SrcDir         string
+	DestDir        string
+	Languages      string
+	DefaultSub     string
+	SplitFileEvery int
+}
+
+func (g *GomkvConfig) LanguageOrderMap() map[string]int {
+	langOrder := map[string]int{}
 	for i, language := range strings.Split(g.Languages, ",") {
 		langOrder[language] = i
 	}
