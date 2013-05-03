@@ -51,7 +51,11 @@ Examples
 
 4. Japanese Then English:
 
-		gomkv --source-dir=/my/videos --dest-dir=/tmp --languages="Japanese,English"
+		gomkv --source-dir=/my/videos --dest-dir=/tmp --languages=Japanese,English
+
+5. Japanese Then English and Subtitles:
+
+		gomkv --source-dir=/my/videos --dest-dir=/tmp --languages=Japanese,English --subtitle-default=English
 
 Example output:
 ---------------
