@@ -30,6 +30,7 @@ Usage
 		-season=1: Season starting offset.
 		-series=false: Videos are episodes of a series
 		-source-dir="": directory containing video files. Defaults to current working directory.
+		-split-chapters=0: Create one file for every N chapters. Only works with --series. e.g. -split-chapters 5
 		-subs=true: Copy subtitles
 		-subtitle-default="": Enable subtitles by default for the language matching this value. e.g. -subtitle-default=English
 	
@@ -56,6 +57,10 @@ Examples
 5. Japanese Then English and Subtitles:
 
 		gomkv --source-dir=/my/videos --dest-dir=/tmp --languages=Japanese,English --subtitle-default=English
+
+6. Split a single file into many files based on chapter count:
+
+		gomkv --source-dir=/my/videos --dest-dir=/tmp --series --split-chapters=5 --prefix TV_SERIES
 
 Example output:
 ---------------
