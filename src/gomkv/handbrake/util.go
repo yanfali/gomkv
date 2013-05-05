@@ -9,6 +9,10 @@ import (
 
 type Section int
 
+var (
+	DebugEnabled bool = false
+)
+
 const (
 	NONE Section = iota
 	CHAPTER
@@ -61,8 +65,6 @@ func getLastChapterMeta(meta *HandBrakeMeta) *ChapterMeta {
 	}
 	return &meta.Chapter[len(meta.Chapter)-1]
 }
-
-var DebugEnabled bool = false
 
 func debug(format string, args ...interface{}) {
 	if DebugEnabled {

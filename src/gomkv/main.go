@@ -10,10 +10,11 @@ import (
 	"path/filepath"
 )
 
-var files []string
-
-var defaults = config.GomkvConfig{}
-var debug = false
+var (
+	files    []string
+	defaults = config.GomkvConfig{}
+	debug    = false
+)
 
 const (
 	DEBUG_LEVEL_BASIC = 1
@@ -22,8 +23,10 @@ const (
 )
 
 func init() {
-	var err error
-	var debuglvl = 0
+	var (
+		err      error
+		debuglvl = 0
+	)
 	mobile := false
 	flag.StringVar(&defaults.Profile, "profile", config.DEFAULT_PROFILE, "Default Encoding Profile. Defaults to 'High Profile'")
 	flag.StringVar(&defaults.Prefix, "prefix", config.DEFAULT_PREFIX, "Default Prefix for output filename(s)")

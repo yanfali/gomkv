@@ -12,6 +12,11 @@ import (
 	"strings"
 )
 
+var (
+	EmptyProfile = errors.New("Encoding profile is empty!")
+	EmptyTitle   = errors.New("Title is empty!")
+)
+
 const (
 	CLI         = "HandBrakeCLI"
 	ENCODE_FAAC = "faac"
@@ -100,9 +105,6 @@ func addAudioOpts(buf *bytes.Buffer, audiometas AudioMetas, config *config.Gomkv
 	}
 	return nil
 }
-
-var EmptyProfile = errors.New("Encoding profile is empty!")
-var EmptyTitle = errors.New("Title is empty!")
 
 func validateConfig(meta HandBrakeMeta, config *config.GomkvConfig) error {
 	if config.Profile == "" {
