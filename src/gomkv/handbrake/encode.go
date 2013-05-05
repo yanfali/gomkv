@@ -135,6 +135,7 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig, session *co
 			return results, nil
 		}
 	}
+	panic("unreachable");
 }
 
 func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, session *config.GomkvSession) (string, error) {
