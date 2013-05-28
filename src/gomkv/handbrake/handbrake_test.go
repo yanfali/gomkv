@@ -5,7 +5,7 @@ import (
 )
 
 var data string = `+ title 1:
-  + stream: source code.mkv
+  + stream: source code.480p.x264.mkv
   + duration: 01:33:09
   + size: 720x480, pixel aspect: 2560/2151, display aspect: 1.79, 29.970 fps
   + autocrop: 0/0/0/0
@@ -39,7 +39,7 @@ var data string = `+ title 1:
 var meta = ParseOutput(data)
 
 func Test_parseTitle(t *testing.T) {
-	exp := "source code.mkv"
+	exp := "source code.480p.x264.mkv"
 	if meta.Title == exp {
 		t.Log("ok")
 	} else {

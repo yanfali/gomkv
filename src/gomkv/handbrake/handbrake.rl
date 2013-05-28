@@ -21,7 +21,7 @@ func ParseOutput(data string) HandBrakeMeta {
 		action newline { line +=1; debug("\n%02d: ", line) }
 		newline = any* '\n' @ newline;
 		stitle := |*
-			([^.])+[.]alnum+ => {
+			([^.])+[.](alnum|[.])+ => {
 				meta.Title = strings.Trim(data[ts:te], " \n");
 				debug("%s", meta.Title);
 				fret;
