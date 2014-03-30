@@ -162,6 +162,19 @@ func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, sessio
 	} else {
 		format = ".mkv"
 	}
+	if (config.Profile != "Universal" && !(strings.Contains(title, ".480p.") || strings.Contains(title, ".720p.") || strings.Contains(title,".1080p.") || strings.Contains(title, ".4k."))) {
+	if meta.Height <= 480 {
+		format = ".480p" + format
+	} else if meta.Height <= 720 {
+		format = ".720p" + format
+	} else if meta.Height <= 1080 {
+		format = ".1080p" + format
+	} else if meta.Height <= 1080 {
+		format = ".1080p" + format
+	} else {
+		format = ".4k" + format
+	}
+	}
 
 	if config.Prefix == "" {
 		output = filepath.Base(title)
