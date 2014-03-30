@@ -22,6 +22,7 @@ Usage
 		-aac=false: Encode audio using aac, instead of copying
 		-debug=0: Debug level 1..3
 		-dest-dir="": directory you want video files to be created
+		-disable-aac: Disable Automatic AAC Audio Generation For Non-Mobile
 		-episode=1: Episode starting offset.
 		-languages="": list of languages and order to copy, comma separated e.g. English,Japanese
 		-mobile=false: Use mobile friendly settings
@@ -68,10 +69,10 @@ Example output:
 		gomkv --source-dir /my/videos --languages="Japanese,English" --prefix SF --series --episode=8
 
 
-		HandBrakeCLI -Z "High Profile" -i /my/videos/title00.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E08.mkv
-		HandBrakeCLI -Z "High Profile" -i /my/videos/title01.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E09.mkv
-		HandBrakeCLI -Z "High Profile" -i /my/videos/title02.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E10.mkv
-		HandBrakeCLI -Z "High Profile" -i /my/videos/title03.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E11.mkv
-		HandBrakeCLI -Z "High Profile" -i /my/videos/title04.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E12.mkv
-		HandBrakeCLI -Z "High Profile" -i /my/videos/title05.mkv -t1 -a2,1 -E copy:ac3,copy:ac3 -s 1,2 -o /home/yanfali/SF_S1E13.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title00.mkv -t1 -a2,1,2 -E copy:ac3,copy:ac3,faac -s 1,2 -o /home/yanfali/SF_S1E08.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title01.mkv -t1 -a2,1,2 -E copy:ac3,copy:ac3,faac -s 1,2 -o /home/yanfali/SF_S1E09.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title02.mkv -t1 -a2,1,2 -E copy:ac3,copy:ac3,faac -s 1,2 -o /home/yanfali/SF_S1E10.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title03.mkv -t1 -a2,1,2 -E copy:ac3,copy:ac3,faac -s 1,2 -o /home/yanfali/SF_S1E11.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title04.mkv -t1 -a2,1,2 -E copy:ac3,copy:ac3,faac -s 1,2 -o /home/yanfali/SF_S1E12.mkv
+		HandBrakeCLI -Z "High Profile" -i /my/videos/title05.mkv -t1 -a2,1,2 -E copy:ac3,copy:ac3,faac -s 1,2 -o /home/yanfali/SF_S1E13.mkv
 
