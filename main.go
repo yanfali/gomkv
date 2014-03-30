@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"gomkv/config"
-	"gomkv/handbrake"
 	"gomkv/exec"
+	"gomkv/handbrake"
 	"os"
 	"path/filepath"
 )
@@ -42,6 +42,7 @@ func init() {
 	flag.StringVar(&defaults.Languages, "languages", "", "list of languages and order to copy, comma separated e.g. English,Japanese")
 	flag.StringVar(&defaults.DefaultSub, "subtitle-default", "", "Enable subtitles by default for the language matching this value. e.g. -subtitle-default=English")
 	flag.IntVar(&defaults.SplitFileEvery, "split-chapters", 0, "Create one file for every N chapters. Only works with --series. e.g. -split-chapters 5")
+	flag.BoolVar(&defaults.DisableAAC, "disable-aac", false, "Disable Automatic AAC Audio Generation For Non-Mobile")
 	flag.Parse()
 
 	workingDir := ""

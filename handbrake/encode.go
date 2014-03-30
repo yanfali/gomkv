@@ -94,6 +94,10 @@ func addAudioOpts(buf *bytes.Buffer, audiometas AudioMetas, config *config.Gomkv
 		}
 		audioOptions = append(audioOptions, encoder)
 	}
+	if (!config.DisableAAC && len(audioTracks) > 0 && audioOptions[0] != "faac") {
+		audioTracks = append(audioTracks, audioTracks[0])
+		audioOptions = append(audioOptions, ENCODE_FAAC)
+	}
 	tracks := []string{}
 	for _, track := range audioTracks {
 		tracks = append(tracks, strconv.Itoa(track))
