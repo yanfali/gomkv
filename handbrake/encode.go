@@ -94,7 +94,7 @@ func addAudioOpts(buf *bytes.Buffer, audiometas AudioMetas, config *config.Gomkv
 		}
 		audioOptions = append(audioOptions, encoder)
 	}
-	if (!config.DisableAAC && len(audioTracks) > 0 && audioOptions[0] != "faac") {
+	if !config.DisableAAC && len(audioTracks) > 0 && audioOptions[0] != "faac" {
 		audioTracks = append(audioTracks, audioTracks[0])
 		audioOptions = append(audioOptions, ENCODE_FAAC)
 	}
@@ -139,7 +139,7 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig, session *co
 			return results, nil
 		}
 	}
-	panic("unreachable");
+	panic("unreachable")
 }
 
 func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, session *config.GomkvSession) (string, error) {
@@ -162,18 +162,18 @@ func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, sessio
 	} else {
 		format = ".mkv"
 	}
-	if (config.Profile != "Universal" && !(strings.Contains(title, ".480p.") || strings.Contains(title, ".720p.") || strings.Contains(title,".1080p.") || strings.Contains(title, ".4k."))) {
-	if meta.Height <= 480 {
-		format = ".480p" + format
-	} else if meta.Height <= 720 {
-		format = ".720p" + format
-	} else if meta.Height <= 1080 {
-		format = ".1080p" + format
-	} else if meta.Height <= 1080 {
-		format = ".1080p" + format
-	} else {
-		format = ".4k" + format
-	}
+	if config.Profile != "Universal" && !(strings.Contains(title, ".480p.") || strings.Contains(title, ".720p.") || strings.Contains(title, ".1080p.") || strings.Contains(title, ".4k.")) {
+		if meta.Height <= 480 {
+			format = ".480p" + format
+		} else if meta.Height <= 720 {
+			format = ".720p" + format
+		} else if meta.Height <= 1080 {
+			format = ".1080p" + format
+		} else if meta.Height <= 1080 {
+			format = ".1080p" + format
+		} else {
+			format = ".4k" + format
+		}
 	}
 
 	if config.Prefix == "" {

@@ -100,7 +100,7 @@ func Test_ValidateBasicEncoding(t *testing.T) {
 
 func Test_ValidateNewNameAndDoesNotAppend480p(t *testing.T) {
 	meta, conf, sess := harness()
-	meta.Title = "a.480p.mkv";
+	meta.Title = "a.480p.mkv"
 	expected := "HandBrakeCLI -Z \"High Profile\" -i a.480p.mkv -t1 -o a.480p_new.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutputEntry(meta, &conf, &sess)
@@ -108,7 +108,7 @@ func Test_ValidateNewNameAndDoesNotAppend480p(t *testing.T) {
 }
 func Test_ValidateNewNameAndDoesNotAppend720p(t *testing.T) {
 	meta, conf, sess := harness()
-	meta.Title = "a.720p.mkv";
+	meta.Title = "a.720p.mkv"
 	expected := "HandBrakeCLI -Z \"High Profile\" -i a.720p.mkv -t1 -o a.720p_new.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutputEntry(meta, &conf, &sess)
@@ -116,7 +116,7 @@ func Test_ValidateNewNameAndDoesNotAppend720p(t *testing.T) {
 }
 func Test_ValidateNewNameAndDoesNotAppend1080p(t *testing.T) {
 	meta, conf, sess := harness()
-	meta.Title = "a.1080p.mkv";
+	meta.Title = "a.1080p.mkv"
 	expected := "HandBrakeCLI -Z \"High Profile\" -i a.1080p.mkv -t1 -o a.1080p_new.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutputEntry(meta, &conf, &sess)
@@ -124,7 +124,7 @@ func Test_ValidateNewNameAndDoesNotAppend1080p(t *testing.T) {
 }
 func Test_ValidateNewNameAndDoesNotAppend4k(t *testing.T) {
 	meta, conf, sess := harness()
-	meta.Title = "a.4k.mkv";
+	meta.Title = "a.4k.mkv"
 	expected := "HandBrakeCLI -Z \"High Profile\" -i a.4k.mkv -t1 -o a.4k_new.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutputEntry(meta, &conf, &sess)
@@ -132,7 +132,7 @@ func Test_ValidateNewNameAndDoesNotAppend4k(t *testing.T) {
 }
 func Test_Validate720pTitle(t *testing.T) {
 	meta, conf, sess := harness()
-	meta.Height = 720;
+	meta.Height = 720
 	expected := "HandBrakeCLI -Z \"High Profile\" -i a.mkv -t1 -o a.720p.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutputEntry(meta, &conf, &sess)
@@ -141,7 +141,7 @@ func Test_Validate720pTitle(t *testing.T) {
 
 func Test_Validate1080pTitle(t *testing.T) {
 	meta, conf, sess := harness()
-	meta.Height = 1080;
+	meta.Height = 1080
 	expected := "HandBrakeCLI -Z \"High Profile\" -i a.mkv -t1 -o a.1080p.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutputEntry(meta, &conf, &sess)
@@ -150,7 +150,7 @@ func Test_Validate1080pTitle(t *testing.T) {
 
 func Test_Validate4kTitle(t *testing.T) {
 	meta, conf, sess := harness()
-	meta.Height = 1081;
+	meta.Height = 1081
 	expected := "HandBrakeCLI -Z \"High Profile\" -i a.mkv -t1 -o a.4k.mkv"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutputEntry(meta, &conf, &sess)
@@ -235,7 +235,7 @@ func Test_ValidateBasicAudio(t *testing.T) {
 }
 func Test_ValidateDisableAACAudio(t *testing.T) {
 	meta, conf, sess := harness()
-	conf.DisableAAC = true;
+	conf.DisableAAC = true
 	atrack := &AudioMeta{Language: "English", Codec: "AC3", Index: 1}
 	meta.Audio = AudioMetas{atrack}
 	expected := "HandBrakeCLI -Z \"High Profile\" -i a.mkv -t1 -a1 -E copy:ac3 -o a.480p.mkv"
@@ -245,7 +245,7 @@ func Test_ValidateDisableAACAudio(t *testing.T) {
 }
 func Test_AACAudioNoTracks(t *testing.T) {
 	meta, conf, sess := harness()
-	conf.DisableAAC = true;
+	conf.DisableAAC = true
 	meta.Audio = AudioMetas{}
 	expected := "HandBrakeCLI -Z \"High Profile\" -i a.mkv -t1 -o a.480p.mkv"
 	equals_harness(func() (string, error) {
@@ -274,7 +274,7 @@ func Test_ValidateMobile(t *testing.T) {
 func Test_ValidateMobileNewName(t *testing.T) {
 	meta, conf, sess := harness()
 	conf.Mobile()
-	meta.Title = "a.m4v";
+	meta.Title = "a.m4v"
 	expected := "HandBrakeCLI -Z \"Universal\" -i a.m4v -t1 -o a_new.m4v"
 	equals_harness(func() (string, error) {
 		return FormatCLIOutputEntry(meta, &conf, &sess)
