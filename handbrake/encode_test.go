@@ -1,9 +1,10 @@
 package handbrake
 
 import (
-	"gomkv/config"
 	"strings"
 	"testing"
+
+	"github.com/yanfali/gomkv/config"
 )
 
 func harness() (HandBrakeMeta, config.GomkvConfig, config.GomkvSession) {

@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gomkv/config"
-	"gomkv/exec"
-	"gomkv/handbrake"
 	"os"
 	"path/filepath"
+
+	"github.com/yanfali/gomkv/config"
+	"github.com/yanfali/gomkv/exec"
+	"github.com/yanfali/gomkv/handbrake"
 )
 
 var (
