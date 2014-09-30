@@ -34,7 +34,12 @@ Usage
 		-split-chapters=0: Create one file for every N chapters. Only works with --series. e.g. -split-chapters 5
 		-subs=true: Copy subtitles
 		-subtitle-default="": Enable subtitles by default for the language matching this value. e.g. -subtitle-default=English
-	
+		-goroutines=2: Number of go routines to invoke to parse output of HandbrakeCLI. 1 effectively turns off concurrency.
+
+Concurrency
+-----------
+
+`gomkv` now uses 2 goroutines by default to try and get more throughput. The upper limit is probably going to be a combination of your CPU and IO bandwidth. On a dual core laptop with SSD invoking up to 4 go routines shows a speed improvement. `gomkv` will automatically turn off concurrency if you attempt to use `split-chapters` because I don't believe there's a safe way to parallelize the chapter analysis because we need the metadata from each file before proceeding to the next one.
 
 Examples
 --------
@@ -62,6 +67,10 @@ Examples
 6. Split a single file into many files based on chapter count:
 
 		gomkv --source-dir=/my/videos --dest-dir=/tmp --series --split-chapters=5 --prefix TV_SERIES
+
+7. Try to use concurrency to speed up parsing
+
+		gomkv --source-dir=/my/videos --dest-dir=/tmp --goroutines=4
 
 Example output:
 ---------------
