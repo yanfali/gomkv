@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -24,6 +25,7 @@ const (
 )
 
 func init() {
+	log.SetPrefix("[gomkv] ")
 	var (
 		err      error
 		debuglvl = 0
@@ -50,30 +52,30 @@ func init() {
 	if defaults.SrcDir == "" {
 		workingDir, err = filepath.Abs(".")
 		if err != nil {
-			panic(err)
+			log.Fatalf("Error resolving cwd directory: %v\n", err)
 		}
 	} else {
 		workingDir, err = validateDirectory(defaults.SrcDir)
 		if err != nil {
-			panic(err)
+			log.Fatalf("%v\n", err)
 		}
 	}
 	defaults.SrcDir = workingDir
 
 	if defaults.DestDir, err = validateDirectory(defaults.DestDir); err != nil {
-		panic(err)
+		log.Fatalf("%v\n", err)
 	}
 	if debug {
-		fmt.Printf("srcdir: %s destdir: %s", defaults.SrcDir, defaults.DestDir)
+		log.Printf("srcdir: %q destdir: %q", defaults.SrcDir, defaults.DestDir)
 	}
 
-	switch {
-	case debuglvl == DEBUG_LEVEL_BASIC:
+	switch debuglvl {
+	case DEBUG_LEVEL_BASIC:
 		debug = true
-	case debuglvl == DEBUG_LEVEL_RAGEL:
+	case DEBUG_LEVEL_RAGEL:
 		debug = true
 		handbrake.DebugEnabled = true
-	case debuglvl == DEBUG_LEVEL_EXEC:
+	case DEBUG_LEVEL_EXEC:
 		debug = true
 		handbrake.DebugEnabled = true
 		exec.Debug = true
@@ -86,14 +88,15 @@ func init() {
 	}
 }
 
-func processOne(session *config.GomkvSession, file string) {
+func processOne(session *config.GomkvSession, file string) error {
 	std, err := exec.Command("HandBrakeCLI", "-t0", "-i", file)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return err
 	}
 	meta := handbrake.ParseOutput(std.Err)
 	if debug {
-		fmt.Fprintln(os.Stderr, meta)
+		log.Println(os.Stderr, meta)
 	}
 	if defaults.Episodic && defaults.SplitFileEvery > 0 {
 		session.Chapter = 1
@@ -101,36 +104,39 @@ func processOne(session *config.GomkvSession, file string) {
 
 	results, err := handbrake.FormatCLIOutput(meta, &defaults, session)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	for _, result := range results {
 		fmt.Println(result)
 	}
+	return nil
 }
 
 func main() {
 	if err := os.Chdir(defaults.SrcDir); err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	if debug {
-		fmt.Fprintln(os.Stderr, "Working Directory: "+defaults.SrcDir)
+		log.Printf("Working Directory: %q\n" + defaults.SrcDir)
 	}
 	mkv, err := filepath.Glob(defaults.SrcDir + "/*.mkv")
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	m4v, err := filepath.Glob(defaults.SrcDir + "/*.m4v")
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	files = append(mkv, m4v...)
 	if len(files) == 0 {
-		fmt.Fprintf(os.Stderr, "No mkv/m4v files found in %s. Exiting.\n", defaults.SrcDir)
+		log.Printf("No mkv/m4v files found in %q. Exiting.\n", defaults.SrcDir)
 		os.Exit(1)
 	}
 	session := &config.GomkvSession{Episode: defaults.EpisodeOffset}
 	for _, file := range files {
-		processOne(session, file)
+		if err := processOne(session, file); err != nil {
+			log.Printf("%q %v", file, err)
+		}
 	}
 }

@@ -46,6 +46,6 @@ func Test_Chapters(t *testing.T) {
 	if len(meta5.Chapter) == 26 {
 		t.Log("ok")
 	} else {
-		t.Errorf("expected 26 chapters, got %d", len(meta4.Chapter))
+		t.Errorf("expected 26 chapters, got %d", len(meta5.Chapter))
 	}
 }

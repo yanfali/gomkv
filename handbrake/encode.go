@@ -27,7 +27,7 @@ const (
 	COPY_AAC    = "copy:aac"
 )
 
-func addSubtitleOpts(buf *bytes.Buffer, subtitlemeta []SubtitleMeta, config *config.GomkvConfig) error {
+func addSubtitleOpts(hbcmd *handbrakeCommand, subtitlemeta []SubtitleMeta, config *config.GomkvConfig) error {
 	if len(subtitlemeta) == 0 {
 		return nil
 	}
@@ -51,10 +51,10 @@ func addSubtitleOpts(buf *bytes.Buffer, subtitlemeta []SubtitleMeta, config *con
 	}
 
 	if len(toCopy) > 0 {
-		fmt.Fprintf(buf, " -s %s", strings.Join(toCopy, ","))
+		hbcmd.Params["-s"] = fmt.Sprintf("%s", strings.Join(toCopy, ","))
 	}
 	if subdef > 0 {
-		fmt.Fprintf(buf, " --subtitle-default %s", strconv.Itoa(subdef))
+		hbcmd.Params["--subtitle-default "] = fmt.Sprintf("%s", strconv.Itoa(subdef))
 	}
 	return nil
 }
@@ -69,7 +69,7 @@ func isCopyLanguage(lang string, config *config.GomkvConfig) bool {
 	return false
 }
 
-func addAudioOpts(buf *bytes.Buffer, audiometas AudioMetas, config *config.GomkvConfig) error {
+func addAudioOpts(hbcmd *handbrakeCommand, audiometas AudioMetas, config *config.GomkvConfig) error {
 	audioTracks := []int{}
 	audioOptions := []string{}
 	for _, audio := range audiometas {
@@ -105,8 +105,8 @@ func addAudioOpts(buf *bytes.Buffer, audiometas AudioMetas, config *config.Gomkv
 	}
 
 	if len(tracks) > 0 {
-		fmt.Fprintf(buf, " -a%s", strings.Join(tracks, ","))
-		fmt.Fprintf(buf, " -E %s", strings.Join(audioOptions, ","))
+		hbcmd.Params["-a"] = fmt.Sprintf("%s", strings.Join(tracks, ","))
+		hbcmd.Params["-E "] = fmt.Sprintf("%s", strings.Join(audioOptions, ","))
 	}
 	return nil
 }
@@ -143,16 +143,22 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig, session *co
 	panic("unreachable")
 }
 
+type handbrakeCommand struct {
+	Params map[string]string
+}
+
 func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, session *config.GomkvSession) (string, error) {
+	hbcmd := handbrakeCommand{
+		make(map[string]string),
+	}
+
 	if err := validateConfig(meta, config); err != nil {
 		return "", err
 	}
-	buf := bytes.NewBuffer([]byte{})
-	title := strings.Replace(meta.Title, " ", "\\ ", -1)
-	fmt.Fprintf(buf, "%s", CLI)
-	fmt.Fprintf(buf, " -Z \"%s\"", config.Profile)
-	fmt.Fprintf(buf, " -i %s", title)
-	fmt.Fprintf(buf, " -t1")
+	title := meta.Title
+	hbcmd.Params["-Z "] = fmt.Sprintf("%q", config.Profile)
+	hbcmd.Params["-i "] = fmt.Sprintf("%q", title)
+	hbcmd.Params["-t"] = "1"
 
 	// TODO Make this smarter
 	// - deal with overwriting same path
@@ -164,15 +170,16 @@ func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, sessio
 		format = ".mkv"
 	}
 	if config.Profile != "Universal" && !(strings.Contains(title, ".480p.") || strings.Contains(title, ".720p.") || strings.Contains(title, ".1080p.") || strings.Contains(title, ".4k.")) {
-		if meta.Height <= 480 {
+		switch {
+		case meta.Height <= 480:
 			format = ".480p" + format
-		} else if meta.Height <= 720 {
+		case meta.Height <= 720:
 			format = ".720p" + format
-		} else if meta.Height <= 1080 {
+		case meta.Height <= 1080:
 			format = ".1080p" + format
-		} else if meta.Height <= 1080 {
+		case meta.Height <= 1080:
 			format = ".1080p" + format
-		} else {
+		default:
 			format = ".4k" + format
 		}
 	}
@@ -192,7 +199,7 @@ func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, sessio
 			if session.Chapter > 0 {
 				end := session.Chapter + config.SplitFileEvery - 1
 				if (len(meta.Chapter)) >= end {
-					fmt.Fprintf(buf, " -c%d-%d", session.Chapter, session.Chapter+config.SplitFileEvery-1)
+					hbcmd.Params["-c"] = fmt.Sprintf("%d-%d", session.Chapter, session.Chapter+config.SplitFileEvery-1)
 				}
 			}
 		} else {
@@ -204,22 +211,28 @@ func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, sessio
 		if config.Languages != "" {
 			sort.Sort(ByLanguage{meta.Audio, config.LanguageOrderMap()})
 		}
-		addAudioOpts(buf, meta.Audio, config)
+		addAudioOpts(&hbcmd, meta.Audio, config)
 	}
 
 	if config.EnableSubs {
-		addSubtitleOpts(buf, meta.Subtitle, config)
+		addSubtitleOpts(&hbcmd, meta.Subtitle, config)
 	}
 
 	if config.DestDir != "" {
 		output = fmt.Sprintf("%s%c%s", config.DestDir, os.PathSeparator, output)
 	}
-	output = strings.Replace(output, " ", "\\ ", -1)
-	if output == title {
+	if output != "" && output == title {
 		index := strings.LastIndex(output, ".")
 		output = output[:index] + "_new" + output[index:]
 	}
-	fmt.Fprintf(buf, " -o %s", output)
-
-	return buf.String(), nil
+	hbcmd.Params["-o "] = fmt.Sprintf("%q", output)
+	buf := bytes.NewBuffer([]byte{})
+	fmt.Fprintf(buf, "%s ", CLI)
+	for _, key := range []string{"-Z ", "-i ", "-t", "-a", "-c", "-E ", "-s", "--subtitle-default ", "-o "} {
+		value, ok := hbcmd.Params[key]
+		if ok {
+			fmt.Fprintf(buf, "%s%s ", key, value)
+		}
+	}
+	return strings.Trim(buf.String(), " "), nil
 }
