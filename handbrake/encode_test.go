@@ -220,6 +220,7 @@ func Test_ValidateMultiEpisodeOffset(t *testing.T) {
 		return FormatCLIOutputEntry(meta, &conf, &sess)
 	}, t, expected)
 	expected = "HandBrakeCLI -Z \"High Profile\" -i \"a.mkv\" -t1 -o \"b_S0E16.480p.mkv\""
+	sess.Episode += 1 // episode increments are now outside of format CLI unless it's chapters
 	equals_harness(func() (string, error) {
 		return FormatCLIOutputEntry(meta, &conf, &sess)
 	}, t, expected)

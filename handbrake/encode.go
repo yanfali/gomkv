@@ -211,7 +211,9 @@ func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, sessio
 	} else {
 		if config.Episodic {
 			output = fmt.Sprintf("%s_S%dE%02d%s", config.Prefix, config.SeasonOffset, session.Episode, format)
-			session.Episode += 1
+			if config.SplitFileEvery > 0 {
+				session.Episode += 1
+			}
 			if session.Chapter > 0 {
 				end := session.Chapter + config.SplitFileEvery - 1
 				if (len(meta.Chapter)) >= end {

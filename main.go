@@ -4,8 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/yanfali/gomkv/config"
 	"github.com/yanfali/gomkv/exec"
@@ -46,6 +48,7 @@ func init() {
 	flag.StringVar(&defaults.DefaultSub, "subtitle-default", "", "Enable subtitles by default for the language matching this value. e.g. -subtitle-default=English")
 	flag.IntVar(&defaults.SplitFileEvery, "split-chapters", 0, "Create one file for every N chapters. Only works with --series. e.g. -split-chapters 5")
 	flag.BoolVar(&defaults.DisableAAC, "disable-aac", false, "Disable Automatic AAC Audio Generation For Non-Mobile")
+	flag.IntVar(&defaults.Goroutines, "goroutines", 2, "Max number of go routines to use for parsing. Controls instances of HandbrakeCLI used")
 	flag.Parse()
 
 	workingDir := ""
@@ -86,6 +89,10 @@ func init() {
 	if mobile {
 		defaults.Mobile()
 	}
+	if defaults.SplitFileEvery > 0 {
+		fmt.Fprintf(os.Stderr, "%sDisabling Goroutines Because of Chapter Splitting\n", log.Prefix())
+		defaults.Goroutines = 1
+	}
 }
 
 func processOne(session *config.GomkvSession, file string) error {
@@ -94,6 +101,12 @@ func processOne(session *config.GomkvSession, file string) error {
 		log.Println(err)
 		return err
 	}
+
+	// This is the amdahl blocker. For unrelated video files this is
+	// embarrassingly parallel. For cases where each file is an episode
+	// this is parallelizable. For cases where each set of chapters
+	// is part of a set of chapters we must wait until we have processed
+	// the meta data.
 	meta := handbrake.ParseOutput(std.Err)
 	if debug {
 		log.Println(os.Stderr, meta)
@@ -102,9 +115,20 @@ func processOne(session *config.GomkvSession, file string) error {
 		session.Chapter = 1
 	}
 
-	results, err := handbrake.FormatCLIOutput(meta, &defaults, session)
+	// copy session object rather than pass through so it can increment
+	// episode number independently of original
+	thisSession := *session
+	results, err := handbrake.FormatCLIOutput(meta, &defaults, &thisSession)
 	if err != nil {
 		return err
+	}
+
+	// incremement the episode
+	if defaults.Episodic {
+		// handle chapters within a file
+		if defaults.SplitFileEvery > 0 {
+			session.Episode += int(math.Max(float64(len(meta.Chapter)/defaults.SplitFileEvery), 1))
+		}
 	}
 	for _, result := range results {
 		fmt.Println(result)
@@ -134,9 +158,23 @@ func main() {
 		os.Exit(1)
 	}
 	session := &config.GomkvSession{Episode: defaults.EpisodeOffset}
+
+	var wg sync.WaitGroup
+	wg.Add(len(files))
+	// limit the number of goroutines that can run concurrently
+	limit := make(chan int, defaults.Goroutines)
 	for _, file := range files {
-		if err := processOne(session, file); err != nil {
-			log.Printf("%q %v", file, err)
+		go func(file string, session config.GomkvSession) {
+			limit <- 1
+			if err := processOne(&session, file); err != nil {
+				log.Printf("%q %v", file, err)
+			}
+			wg.Done()
+			<-limit
+		}(file, *session)
+		if defaults.Episodic && defaults.SplitFileEvery == 0 {
+			session.Episode += 1
 		}
 	}
+	wg.Wait() // wait for all files to have been processed
 }

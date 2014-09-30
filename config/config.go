@@ -29,6 +29,7 @@ type GomkvConfig struct {
 	DefaultSub     string
 	SplitFileEvery int
 	DisableAAC     bool
+	Goroutines     int
 }
 
 func (g *GomkvConfig) LanguageOrderMap() map[string]int {
