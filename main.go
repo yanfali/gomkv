@@ -17,7 +17,7 @@ import (
 var (
 	files    []string
 	defaults = config.GomkvConfig{}
-	debug    = false
+	debuglvl int
 )
 
 const (
@@ -29,29 +29,29 @@ const (
 func init() {
 	log.SetPrefix("[gomkv] ")
 	var (
-		err      error
-		debuglvl = 0
+		err error
 	)
+	debuglvl = 0
 	mobile := false
-	flag.StringVar(&defaults.Profile, "profile", config.DEFAULT_PROFILE, "Default Encoding Profile. Defaults to 'High Profile'")
-	flag.StringVar(&defaults.Prefix, "prefix", config.DEFAULT_PREFIX, "Default Prefix for output filename(s)")
-	flag.BoolVar(&defaults.Episodic, "series", false, "Videos are episodes of a series")
+	flag.StringVar(&defaults.Profile, "profile", config.DEFAULT_PROFILE, "Encoding Profile. Defaults to 'High Profile'")
+	flag.StringVar(&defaults.Prefix, "prefix", config.DEFAULT_PREFIX, "Prefix for output filename(s)")
+	flag.BoolVar(&defaults.Episodic, "series", false, "Videos are episodes in a series")
 	flag.IntVar(&defaults.EpisodeOffset, "episode", 1, "Episode starting offset.")
 	flag.IntVar(&defaults.SeasonOffset, "season", 1, "Season starting offset.")
-	flag.BoolVar(&defaults.AacOnly, "aac", false, "Encode audio using aac, instead of copying")
+	flag.BoolVar(&defaults.AacOnly, "aac", false, "Encode audio using aac, instead of copying verbatim")
 	flag.BoolVar(&mobile, "mobile", false, "Use mobile friendly settings")
 	flag.BoolVar(&defaults.EnableSubs, "subs", true, "Copy subtitles")
-	flag.IntVar(&debuglvl, "debug", 0, "Debug level 1..3")
+	flag.IntVar(&debuglvl, "debug", 0, "Debug level 1..3. 1) basic, 2) parser 3) execution of commands")
 	flag.StringVar(&defaults.SrcDir, "source-dir", "", "directory containing video files. Defaults to current working directory.")
-	flag.StringVar(&defaults.DestDir, "dest-dir", "", "directory you want video files to be created")
+	flag.StringVar(&defaults.DestDir, "dest-dir", "", "directory you want new video files to be created")
 	flag.StringVar(&defaults.Languages, "languages", "", "list of languages and order to copy, comma separated e.g. English,Japanese")
 	flag.StringVar(&defaults.DefaultSub, "subtitle-default", "", "Enable subtitles by default for the language matching this value. e.g. -subtitle-default=English")
 	flag.IntVar(&defaults.SplitFileEvery, "split-chapters", 0, "Create one file for every N chapters. Only works with --series. e.g. -split-chapters 5")
 	flag.BoolVar(&defaults.DisableAAC, "disable-aac", false, "Disable Automatic AAC Audio Generation For Non-Mobile")
-	flag.IntVar(&defaults.Goroutines, "goroutines", 2, "Max number of go routines to use for parsing. Controls instances of HandbrakeCLI used")
+	flag.IntVar(&defaults.Goroutines, "goroutines", 2, "Max number of go routines to use for parsing. Controls instances of HandbrakeCLI used to parse video files")
 	flag.Parse()
 
-	workingDir := ""
+	var workingDir string
 	if defaults.SrcDir == "" {
 		workingDir, err = filepath.Abs(".")
 		if err != nil {
@@ -68,18 +68,15 @@ func init() {
 	if defaults.DestDir, err = validateDirectory(defaults.DestDir); err != nil {
 		log.Fatalf("%v\n", err)
 	}
-	if debug {
+	if debuglvl > 0 {
 		log.Printf("srcdir: %q destdir: %q", defaults.SrcDir, defaults.DestDir)
 	}
 
 	switch debuglvl {
 	case DEBUG_LEVEL_BASIC:
-		debug = true
 	case DEBUG_LEVEL_RAGEL:
-		debug = true
 		handbrake.DebugEnabled = true
 	case DEBUG_LEVEL_EXEC:
-		debug = true
 		handbrake.DebugEnabled = true
 		exec.Debug = true
 	}
@@ -108,7 +105,7 @@ func processOne(session *config.GomkvSession, file string) error {
 	// is part of a set of chapters we must wait until we have processed
 	// the meta data.
 	meta := handbrake.ParseOutput(std.Err)
-	if debug {
+	if debuglvl > 0 {
 		log.Println(os.Stderr, meta)
 	}
 	if defaults.Episodic && defaults.SplitFileEvery > 0 {
@@ -141,18 +138,13 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	if debug {
+	if debuglvl > 0 {
 		log.Printf("Working Directory: %q\n" + defaults.SrcDir)
 	}
-	mkv, err := filepath.Glob(defaults.SrcDir + "/*.mkv")
+	files, err := filepath.Glob(defaults.SrcDir + "/*.m[k4]v")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	m4v, err := filepath.Glob(defaults.SrcDir + "/*.m4v")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	files = append(mkv, m4v...)
 	if len(files) == 0 {
 		log.Printf("No mkv/m4v files found in %q. Exiting.\n", defaults.SrcDir)
 		os.Exit(1)
@@ -160,17 +152,17 @@ func main() {
 	session := &config.GomkvSession{Episode: defaults.EpisodeOffset}
 
 	var wg sync.WaitGroup
-	wg.Add(len(files))
+	wg.Add(len(files)) // wait for output from all files
 	// limit the number of goroutines that can run concurrently
-	limit := make(chan int, defaults.Goroutines)
+	semaphore := make(chan int, defaults.Goroutines)
 	for _, file := range files {
 		go func(file string, session config.GomkvSession) {
-			limit <- 1
+			semaphore <- 1 // mark a goroutine in use
 			if err := processOne(&session, file); err != nil {
 				log.Printf("%q %v", file, err)
 			}
-			wg.Done()
-			<-limit
+			wg.Done()   // notify wait group a file has been processed
+			<-semaphore // go routine returned
 		}(file, *session)
 		if defaults.Episodic && defaults.SplitFileEvery == 0 {
 			session.Episode += 1
