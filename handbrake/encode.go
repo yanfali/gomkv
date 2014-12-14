@@ -1,5 +1,7 @@
 package handbrake
 
+//go:generate ragel -Z handbrake.rl
+
 import (
 	"bytes"
 	"errors"
