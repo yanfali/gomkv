@@ -74,7 +74,6 @@ func init() {
 
 	switch debuglvl {
 	case debugLevelBasic:
-		fallthrough
 	case debugLevelRagel:
 		handbrake.DebugEnabled = true
 	case debugLevelExec:
