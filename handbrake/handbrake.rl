@@ -8,12 +8,12 @@ import (
 	machine handbrake;
 	write data;
 }%%
-func ParseOutput(data string) HandBrakeMeta {
+func ParseOutput(data string) Meta {
 	cs, p, pe, eof := 0, 0, len(data), 0
 	top, ts, te, act := 0,0,0,0
 	var stack = []int{0}
-	var section = NONE
-	var meta = HandBrakeMeta{}
+	var section = None
+	var meta = Meta{}
 	line := 1
 	debug("%02d: ", line)
 
@@ -30,7 +30,7 @@ func ParseOutput(data string) HandBrakeMeta {
 		sduration := |*
 			space+;
 			digit{2}[:]digit{2}[:]digit{2} => {
-				meta.Duration = parseTime(data[ts:te])
+				meta.Duration = parseDurationIntoSeconds(data[ts:te])
 				debug("%f", meta.Duration);
 				fret;
 			};
@@ -170,17 +170,17 @@ func ParseOutput(data string) HandBrakeMeta {
 		autocrop = prefixsp "autocrop:";
 		track = prefixsp digit "," space;
 		chapter = prefixsp digit{1,2} ":" space;
-		main := ( 
+		main := (
 			newline |
 			stream @{ fcall stitle; } |
 			duration @{ fcall sduration; } |
 			video @{ fcall picture; } |
 			autocrop @{ fcall crop; } |
-			prefixsp "chapters:" @{ section = CHAPTER; debug("chapter"); } |
-			prefixsp "audio tracks:" @{ section = AUDIO; debug("audio"); } |
-			prefixsp "subtitle tracks:" @{ section = SUBTITLE; debug("subtitle"); } |
+			prefixsp "chapters:" @{ section = Chapter; debug("chapter"); } |
+			prefixsp "audio tracks:" @{ section = Audio; debug("audio"); } |
+			prefixsp "subtitle tracks:" @{ section = Subtitle; debug("subtitle"); } |
 			prefixsp digit{1,2} ":" @{
-				if section == CHAPTER {
+				if section == Chapter {
 					// reset p to space before digits
 					for p -= 2; data[p] == ' '; p -= 1 {}
 					fcall achapter;
@@ -188,9 +188,9 @@ func ParseOutput(data string) HandBrakeMeta {
 			} |
 			track @{
 				switch section {
-				case AUDIO:
+				case Audio:
 					fcall atrack;
-				case SUBTITLE:
+				case Subtitle:
 					fcall subtitle;
 				}
 			}

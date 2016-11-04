@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var data3 string = `+ title 1:
+var data3 = `+ title 1:
   + stream: GODOT_t00.mkv
   + duration: 01:05:29
   + size: 720x480, pixel aspect: 1/1, display aspect: 1.78, 23.976 fps
@@ -36,6 +36,6 @@ func Test_parseTitleOddAudioTracks(t *testing.T) {
 		audio[1].Codec == "AC3" {
 		t.Log("ok")
 	} else {
-		t.Errorf("Not parsed correctly", audio[0], audio[1])
+		t.Errorf("Not parsed correctly %+v %+v", audio[0], audio[1])
 	}
 }

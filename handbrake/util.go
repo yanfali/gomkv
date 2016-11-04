@@ -7,33 +7,37 @@ import (
 	"strings"
 )
 
-type Section int
+type section int
 
+// exports
 var (
-	DebugEnabled bool = false
+	DebugEnabled = false
 )
 
+// constants
 const (
-	NONE Section = iota
-	CHAPTER
-	AUDIO
-	SUBTITLE
+	None section = iota
+	Chapter
+	Audio
+	Subtitle
+	minuteInSeconds = 60
+	hourInMinutes   = 60
 )
 
-func parseTime(timestring string) float64 {
+func parseDurationIntoSeconds(timestring string) float64 {
 	rawTime := strings.Trim(timestring, " \n")
 	splitTime := strings.Split(rawTime, ":")
-	var length float64
+	var totalSeconds float64
 	hours, err := strconv.ParseInt(splitTime[0], 10, 8)
 	if err != nil {
 		panic(err)
 	}
-	length += float64(hours * 60 * 60)
+	totalSeconds += float64(hours * minuteInSeconds * hourInMinutes)
 	minutes, err := strconv.ParseInt(splitTime[1], 10, 8)
-	length += float64(minutes * 60)
+	totalSeconds += float64(minutes * minuteInSeconds)
 	seconds, err := strconv.ParseInt(splitTime[2], 10, 8)
-	length += float64(seconds)
-	return length
+	totalSeconds += float64(seconds)
+	return totalSeconds
 }
 
 func parseInt(value string) int {
@@ -42,24 +46,23 @@ func parseInt(value string) int {
 	} else {
 		return int(result)
 	}
-	return 0
 }
 
-func getLastAudioMeta(meta *HandBrakeMeta) *AudioMeta {
+func getLastAudioMeta(meta *Meta) *AudioMeta {
 	if len(meta.Audio) == 0 {
 		panic("No audio available!")
 	}
 	return meta.Audio[len(meta.Audio)-1]
 }
 
-func getLastSubtitleMeta(meta *HandBrakeMeta) *SubtitleMeta {
+func getLastSubtitleMeta(meta *Meta) *SubtitleMeta {
 	if len(meta.Subtitle) == 0 {
 		panic("No subtitle available!")
 	}
 	return &meta.Subtitle[len(meta.Subtitle)-1]
 }
 
-func getLastChapterMeta(meta *HandBrakeMeta) *ChapterMeta {
+func getLastChapterMeta(meta *Meta) *ChapterMeta {
 	if len(meta.Chapter) == 0 {
 		panic("No subtitle available!")
 	}
@@ -72,15 +75,15 @@ func debug(format string, args ...interface{}) {
 	}
 }
 
-func addAudioMeta(meta *HandBrakeMeta) {
+func addAudioMeta(meta *Meta) {
 	meta.Audio = append(meta.Audio, &AudioMeta{})
 }
 
-func addSubtitleMeta(meta *HandBrakeMeta) {
+func addSubtitleMeta(meta *Meta) {
 	subtitle := SubtitleMeta{}
 	meta.Subtitle = append(meta.Subtitle, subtitle)
 }
 
-func addChapterMeta(meta *HandBrakeMeta) {
+func addChapterMeta(meta *Meta) {
 	meta.Chapter = append(meta.Chapter, ChapterMeta{})
 }

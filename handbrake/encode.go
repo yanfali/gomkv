@@ -15,23 +15,25 @@ import (
 	"github.com/yanfali/gomkv/config"
 )
 
+// Exports
 var (
-	EmptyProfile   = errors.New("Encoding profile is empty!")
-	EmptyTitle     = errors.New("Title is empty!")
-	ParameterOrder = []string{"-Z ", "-i ", "-t", "-a", "-c", "-E ", "-s", "--subtitle-default ", "-o "}
+	ErrEmptyProfile = errors.New("Encoding profile is empty!")
+	ErrEmptyTitle   = errors.New("Title is empty!")
+	ParameterOrder  = []string{"-Z ", "-i ", "-t", "-a", "-c", "-E ", "-s", "--subtitle-default ", "-o "}
 )
 
+// Constants
 const (
-	CLI         = "HandBrakeCLI"
-	ENCODE_FAAC = "faac"
-	ENCODE_AC3  = "ffac3"
-	COPY_AC3    = "copy:ac3"
-	COPY_DTS    = "copy:dts"
-	COPY_AAC    = "copy:aac"
-	AC3         = "AC3"
-	DTS         = "DTS"
-	AAC         = "aac"
-	FAAC        = "faac"
+	Cli        = "HandBrakeCLI"
+	EncodeFAAC = "faac"
+	EncodeAC3  = "ffac3"
+	CopyAC3    = "copy:ac3"
+	CopyDTS    = "copy:dts"
+	CopyAAC    = "copy:aac"
+	AC3        = "AC3"
+	DTS        = "DTS"
+	AAC        = "aac"
+	FAAC       = "faac"
 )
 
 func addSubtitleOpts(hbcmd *handbrakeCommand, subtitlemeta []SubtitleMeta, config *config.GomkvConfig) error {
@@ -86,25 +88,25 @@ func addAudioOpts(hbcmd *handbrakeCommand, audiometas AudioMetas, config *config
 			continue
 		}
 		if config.AacOnly {
-			audioOptions = append(audioOptions, ENCODE_FAAC)
+			audioOptions = append(audioOptions, EncodeFAAC)
 			continue
 		}
 		encoder := ""
 		switch audio.Codec {
 		case AC3:
-			encoder = COPY_AC3
+			encoder = CopyAC3
 		case DTS:
-			encoder = COPY_DTS
+			encoder = CopyDTS
 		case AAC:
-			encoder = COPY_AAC
+			encoder = CopyAAC
 		default:
-			encoder = ENCODE_AC3
+			encoder = EncodeAC3
 		}
 		audioOptions = append(audioOptions, encoder)
 	}
 	if !config.DisableAAC && len(audioTracks) > 0 && audioOptions[0] != FAAC {
 		audioTracks = append(audioTracks, audioTracks[0])
-		audioOptions = append(audioOptions, ENCODE_FAAC)
+		audioOptions = append(audioOptions, EncodeFAAC)
 	}
 	tracks := []string{}
 	for _, track := range audioTracks {
@@ -118,17 +120,18 @@ func addAudioOpts(hbcmd *handbrakeCommand, audiometas AudioMetas, config *config
 	return nil
 }
 
-func validateConfig(meta HandBrakeMeta, config *config.GomkvConfig) error {
+func validateConfig(meta Meta, config *config.GomkvConfig) error {
 	if config.Profile == "" {
-		return EmptyProfile
+		return ErrEmptyProfile
 	}
 	if meta.Title == "" {
-		return EmptyTitle
+		return ErrEmptyTitle
 	}
 	return nil
 }
 
-func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig, session *config.GomkvSession) ([]string, error) {
+// FormatCLIOutput takes collected metadata and creates CLI string
+func FormatCLIOutput(meta Meta, config *config.GomkvConfig, session *config.GomkvSession) ([]string, error) {
 	results := []string{}
 	for {
 		result, err := FormatCLIOutputEntry(meta, config, session)
@@ -147,13 +150,13 @@ func FormatCLIOutput(meta HandBrakeMeta, config *config.GomkvConfig, session *co
 			return results, nil
 		}
 	}
-	panic("unreachable")
 }
 
 type handbrakeCommand struct {
 	Params map[string]string
 }
 
+// ContainsString searches slice of strings for match
 func ContainsString(search string, matches []string) bool {
 	for _, match := range matches {
 		if strings.Contains(search, match) {
@@ -163,6 +166,7 @@ func ContainsString(search string, matches []string) bool {
 	return false
 }
 
+// MakeFormatString creates a filename with the height of the video
 func MakeFormatString(height int, title string, config *config.GomkvConfig) (format string) {
 	if config.Profile != "Universal" && !(ContainsString(title, []string{".480p.", ".720p.", ".1080p.", ".4k."})) {
 		switch {
@@ -184,7 +188,8 @@ func MakeFormatString(height int, title string, config *config.GomkvConfig) (for
 	return
 }
 
-func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, session *config.GomkvSession) (string, error) {
+// FormatCLIOutputEntry outputs Handbrake compatible CLI commands based on config
+func FormatCLIOutputEntry(meta Meta, config *config.GomkvConfig, session *config.GomkvSession) (string, error) {
 	hbcmd := handbrakeCommand{
 		make(map[string]string),
 	}
@@ -199,7 +204,7 @@ func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, sessio
 
 	// TODO Make this smarter
 	// - deal with overwriting same path
-	var format string = MakeFormatString(meta.Height, title, config)
+	format := MakeFormatString(meta.Height, title, config)
 
 	var output string
 	if config.Prefix == "" {
@@ -214,7 +219,7 @@ func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, sessio
 		if config.Episodic {
 			output = fmt.Sprintf("%s_S%dE%02d%s", config.Prefix, config.SeasonOffset, session.Episode, format)
 			if config.SplitFileEvery > 0 {
-				session.Episode += 1
+				session.Episode++
 			}
 			if session.Chapter > 0 {
 				end := session.Chapter + config.SplitFileEvery - 1
@@ -247,7 +252,7 @@ func FormatCLIOutputEntry(meta HandBrakeMeta, config *config.GomkvConfig, sessio
 	}
 	hbcmd.Params["-o "] = fmt.Sprintf("%q", output)
 	buf := bytes.NewBuffer([]byte{})
-	fmt.Fprintf(buf, "%s ", CLI)
+	fmt.Fprintf(buf, "%s ", Cli)
 	for _, key := range ParameterOrder {
 		value, ok := hbcmd.Params[key]
 		if ok {

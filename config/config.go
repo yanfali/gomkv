@@ -4,16 +4,19 @@ import (
 	"strings"
 )
 
+// exports
 const (
-	DEFAULT_PROFILE = "High Profile"
-	DEFAULT_PREFIX  = ""
+	DefaultProfile = "High Profile"
+	DefaultPrefix  = ""
 )
 
+// GomkvSession struct
 type GomkvSession struct {
 	Episode int
 	Chapter int
 }
 
+// GomkvConfig configuration of program
 type GomkvConfig struct {
 	Profile        string
 	Prefix         string
@@ -32,6 +35,7 @@ type GomkvConfig struct {
 	Goroutines     int
 }
 
+// LanguageOrderMap describes the preference order they should be encoded in
 func (g *GomkvConfig) LanguageOrderMap() map[string]int {
 	langOrder := map[string]int{}
 	for i, language := range strings.Split(g.Languages, ",") {
@@ -40,6 +44,7 @@ func (g *GomkvConfig) LanguageOrderMap() map[string]int {
 	return langOrder
 }
 
+// Mobile configures handbrake to be mobile friendly
 func (g *GomkvConfig) Mobile() *GomkvConfig {
 	g.Profile = "Universal"
 	g.AacOnly = true

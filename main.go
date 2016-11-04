@@ -21,9 +21,9 @@ var (
 )
 
 const (
-	DEBUG_LEVEL_BASIC = 1
-	DEBUG_LEVEL_RAGEL = 2
-	DEBUG_LEVEL_EXEC  = 3
+	debugLevelBasic = iota
+	debugLevelRagel = iota
+	debugLevelExec  = iota
 )
 
 func init() {
@@ -33,8 +33,8 @@ func init() {
 	)
 	debuglvl = 0
 	mobile := false
-	flag.StringVar(&defaults.Profile, "profile", config.DEFAULT_PROFILE, "Encoding Profile. Defaults to 'High Profile'")
-	flag.StringVar(&defaults.Prefix, "prefix", config.DEFAULT_PREFIX, "Prefix for output filename(s)")
+	flag.StringVar(&defaults.Profile, "profile", config.DefaultProfile, "Encoding Profile. Defaults to 'High Profile'")
+	flag.StringVar(&defaults.Prefix, "prefix", config.DefaultPrefix, "Prefix for output filename(s)")
 	flag.BoolVar(&defaults.Episodic, "series", false, "Videos are episodes in a series")
 	flag.IntVar(&defaults.EpisodeOffset, "episode", 1, "Episode starting offset.")
 	flag.IntVar(&defaults.SeasonOffset, "season", 1, "Season starting offset.")
@@ -73,10 +73,11 @@ func init() {
 	}
 
 	switch debuglvl {
-	case DEBUG_LEVEL_BASIC:
-	case DEBUG_LEVEL_RAGEL:
+	case debugLevelBasic:
+		fallthrough
+	case debugLevelRagel:
 		handbrake.DebugEnabled = true
-	case DEBUG_LEVEL_EXEC:
+	case debugLevelExec:
 		handbrake.DebugEnabled = true
 		exec.Debug = true
 	}
@@ -106,7 +107,7 @@ func processOne(session *config.GomkvSession, file string) error {
 	// the meta data.
 	meta := handbrake.ParseOutput(std.Err)
 	if debuglvl > 0 {
-		log.Println(os.Stderr, meta)
+		log.Printf("+%v", meta)
 	}
 	if defaults.Episodic && defaults.SplitFileEvery > 0 {
 		session.Chapter = 1
@@ -165,7 +166,7 @@ func main() {
 			<-semaphore // go routine returned
 		}(file, *session)
 		if defaults.Episodic && defaults.SplitFileEvery == 0 {
-			session.Episode += 1
+			session.Episode++
 		}
 	}
 	wg.Wait() // wait for all files to have been processed

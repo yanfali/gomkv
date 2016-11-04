@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var data string = `+ title 1:
+var data = `+ title 1:
   + stream: source code.480p.x264.mkv
   + duration: 01:33:09
   + size: 720x480, pixel aspect: 2560/2151, display aspect: 1.79, 29.970 fps
@@ -78,7 +78,7 @@ func Test_aspectRatio(t *testing.T) {
 	if meta.Aspect == ar {
 		t.Log("ok")
 	} else {
-		t.Errorf("expected %f, got %f", ar, meta.Aspect)
+		t.Errorf("expected %s, got %s", ar, meta.Aspect)
 	}
 }
 
@@ -87,7 +87,7 @@ func Test_fps(t *testing.T) {
 	if meta.Fps == fps {
 		t.Log("ok")
 	} else {
-		t.Errorf("expected %f, got %f", fps, meta.Fps)
+		t.Errorf("expected %s, got %s", fps, meta.Fps)
 	}
 }
 
@@ -106,7 +106,7 @@ func Test_AudioFrequency(t *testing.T) {
 	if meta.Audio[0].Frequency == 48000 {
 		t.Log("ok")
 	} else {
-		t.Error("expected 48KHz, got %d", meta.Audio[0].Frequency)
+		t.Errorf("expected 48KHz, got %d", meta.Audio[0].Frequency)
 	}
 }
 
@@ -114,7 +114,7 @@ func Test_AudioBps(t *testing.T) {
 	if meta.Audio[0].Bps == 448000 {
 		t.Log("ok")
 	} else {
-		t.Error("expected 448KBps, got %d", meta.Audio[0].Bps)
+		t.Errorf("expected 448KBps, got %d", meta.Audio[0].Bps)
 	}
 }
 
@@ -122,7 +122,7 @@ func Test_SubtitleCount(t *testing.T) {
 	if len(meta.Subtitle) == 3 {
 		t.Log("ok")
 	} else {
-		t.Error("expected 3 subtitles, found %d", len(meta.Subtitle))
+		t.Errorf("expected 3 subtitles, found %d", len(meta.Subtitle))
 	}
 }
 

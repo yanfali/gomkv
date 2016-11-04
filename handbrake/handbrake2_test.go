@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var data2 string = `+ title 1:
+var data2 = `+ title 1:
   + stream: TRANSFORMERS_1984_S1E01.mkv
   + duration: 00:22:52
   + size: 704x480, pixel aspect: 355/396, display aspect: 1.31, 29.970 fps
