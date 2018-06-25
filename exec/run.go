@@ -21,7 +21,7 @@ var Debug = false
 
 // Command with default timeout
 func Command(file string, params ...string) (Std, error) {
-	return CommandWithTimeout(file, time.Second*15, params...)
+	return CommandWithTimeout(file, time.Second*30, params...)
 }
 
 // CommandWithTimeout wrapper
