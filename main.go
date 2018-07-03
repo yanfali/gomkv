@@ -49,6 +49,7 @@ func init() {
 	flag.IntVar(&defaults.SplitFileEvery, "split-chapters", 0, "Create one file for every N chapters. Only works with --series. e.g. -split-chapters 5")
 	flag.BoolVar(&defaults.DisableAAC, "disable-aac", false, "Disable Automatic AAC Audio Generation For Non-Mobile")
 	flag.IntVar(&defaults.Goroutines, "goroutines", 2, "Max number of go routines to use for parsing. Controls instances of HandbrakeCLI used to parse video files")
+	flag.StringVar(&defaults.FileGlob, "fileglob", config.DefaultFileGlob, "default fileglob pattern")
 	flag.Parse()
 
 	var workingDir string
@@ -139,14 +140,14 @@ func main() {
 	}
 
 	if debuglvl > 0 {
-		log.Printf("Working Directory: %q\n" + defaults.SrcDir)
+		log.Printf("Working Directory: %q\n", defaults.SrcDir)
 	}
-	files, err := filepath.Glob(defaults.SrcDir + "/*.m[k4]v")
+	files, err := filepath.Glob(defaults.SrcDir + "/*[.]" + defaults.FileGlob)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	if len(files) == 0 {
-		log.Printf("No mkv/m4v files found in %q. Exiting.\n", defaults.SrcDir)
+		log.Printf("No %s files found in %q. Exiting.\n", defaults.FileGlob, defaults.SrcDir)
 		os.Exit(1)
 	}
 	session := &config.GomkvSession{Episode: defaults.EpisodeOffset}

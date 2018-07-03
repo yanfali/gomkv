@@ -6,8 +6,9 @@ import (
 
 // exports
 const (
-	DefaultProfile = "High Profile"
-	DefaultPrefix  = ""
+	DefaultProfile  = "High Profile"
+	DefaultPrefix   = ""
+	DefaultFileGlob = "m[k4]v"
 )
 
 // GomkvSession struct
@@ -33,6 +34,7 @@ type GomkvConfig struct {
 	SplitFileEvery int
 	DisableAAC     bool
 	Goroutines     int
+	FileGlob       string
 }
 
 // LanguageOrderMap describes the preference order they should be encoded in
